@@ -1,0 +1,17 @@
+# Normalize line endings to LF for everyone (Windows included).
+* text=auto eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Generated files: collapse in diffs
+pnpm-lock.yaml linguist-generated=true -diff
+drizzle/meta/** linguist-generated=true

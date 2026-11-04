@@ -1,0 +1,30 @@
+# Git hooks: enforced for every contributor and every AI agent that commits.
+# Installed by `pnpm exec lefthook install` (bootstrap step 12). Never bypass with --no-verify (see AGENTS.md).
+
+pre-commit:
+  parallel: true
+  commands:
+    format:
+      glob: "*.{js,mjs,cjs,ts,tsx,json,md,css,yml,yaml}"
+      run: pnpm exec prettier --write --ignore-unknown {staged_files}
+      stage_fixed: true
+    lint:
+      glob: "*.{js,mjs,cjs,ts,tsx}"
+      run: pnpm exec eslint --cache --fix --max-warnings=0 {staged_files}
+      stage_fixed: true
+    i18n:
+      glob: "messages/*.json"
+      run: pnpm i18n:check
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}
+
+pre-push:
+  parallel: true
+  commands:
+    typecheck:
+      run: pnpm typecheck
+    test:
+      run: pnpm test
