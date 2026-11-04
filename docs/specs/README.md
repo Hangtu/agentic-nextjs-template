@@ -18,3 +18,4 @@ Specs for multi-part features and risky changes, at the contract's actual spec p
 |---|---|
 | [Adaptive adoption MVP](adaptive-adoption-mvp.md) | Implemented (kit); app scenarios pending |
 | [Actionable reports, operations, and updates](doctor-operations-and-updates.md) | Implemented (kit); real operation/update exercises pending |
+| [Repository presentation and community essentials](repository-presentation.md) | Implemented (local); GitHub settings pending |

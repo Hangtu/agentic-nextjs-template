@@ -45,12 +45,15 @@ This repository contains engineering standards, recipes, and dependency-free kit
 |---|---|---|
 | Kit checks and regression tests | `node scripts/verify-kit.mjs` | Run after kit changes |
 | Whitespace errors | `git diff --check` | Run before reporting |
+| Presentation files and artwork | `node scripts/verify-kit.mjs` | Structure/dimensions automated; visual and remote GitHub settings remain manual |
 | Generated app checks | Not applicable in kit mode | Execute separately using the scenario checklist |
 
 ## Deferred work
 
 See [kit validation](quality/kit-validation.md) for the application scenarios and unexecuted bootstrap/browser evidence. Do not label the kit a tested production starter until those results exist.
 
+GitHub remote settings—About, topics, social preview upload, private advisories, secret scanning, branch protection—are documented in [the presentation guide](operations/github-presentation.md) and remain manual. No remote setting was changed by this work.
+
 ## Current work
 
-The [adoption MVP](specs/adaptive-adoption-mvp.md) is the committed baseline. The approved [report, operation, and update improvements](specs/doctor-operations-and-updates.md) are implemented with local evidence recorded in that spec. Next: validate real app/adoption/update scenarios in isolated target projects, rather than adding more rules. No app bootstrap, commit, or push is authorized as a continuation shortcut.
+The [adoption MVP](specs/adaptive-adoption-mvp.md) is the committed baseline. The approved [report, operation, and update improvements](specs/doctor-operations-and-updates.md) are implemented with local evidence recorded in that spec. The [repository presentation](specs/repository-presentation.md) refresh is implemented locally; GitHub About/topics/social-preview settings remain manual. Next: validate real app/adoption/update scenarios in isolated target projects, rather than adding more rules. No app/bootstrap, remote-settings change, commit, or push is authorized as a continuation shortcut.

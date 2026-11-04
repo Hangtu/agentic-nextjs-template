@@ -17,6 +17,13 @@ test("README exposes three independent operation entry points", async () => {
   }
 });
 
+test("README links the license and community entry points", async () => {
+  const readme = await read("README.md");
+  for (const path of ["LICENSE", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md", "assets/README.md", "docs/operations/github-presentation.md"]) {
+    assert.ok(readme.includes(path), path);
+  }
+});
+
 for (const operation of ["Doctor", "Adopt", "Verify"]) {
   test(`${operation} has an explicit boundary and stop condition in the shared playbook`, async () => {
     const section = operationSection(await read("docs/playbooks/adopt-project.md"), operation);

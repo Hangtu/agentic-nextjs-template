@@ -10,7 +10,7 @@ node scripts/verify-kit.mjs
 
 Requires Node.js 22+ and no third-party dependencies. The command syntax-checks kit scripts, checks local Markdown targets/heading anchors and duplicate normative rule IDs, validates the active/context-template structure, and runs Node's built-in tests. Root CI runs it on the declared runtime matrix.
 
-Tests exercise approved landing, authenticated-app, and existing-project **contract fixtures**, invalid/unknown states, reference errors, and the regression where docs-only CI tried to run an app pipeline. Provenance checks cover credential-free HTTPS sources, exact commit syntax, valid adoption dates, manual-review policy, and explicit source-kit exceptions. Operation/report tests guard documented entry points, boundaries, fields, and the three-way update procedure.
+Tests exercise approved landing, authenticated-app, and existing-project **contract fixtures**, invalid/unknown states, reference errors, and the regression where docs-only CI tried to run an app pipeline. Provenance checks cover credential-free HTTPS sources, exact commit syntax, valid adoption dates, manual-review policy, and explicit source-kit exceptions. Operation/report tests guard documented entry points, boundaries, fields, and the three-way update procedure. Presentation checks verify the license holder/text, self-contained accessible SVGs, PNG dimensions/limits, community files, and issue-form presence.
 
 The checker is read-only. Test cases create and clean isolated temporary fixtures. Neither checker nor tests install dependencies, execute project commands from a contract, scan secret env files, or access a database/network.
 
@@ -20,6 +20,7 @@ The checker is read-only. Test cases create and clean isolated temporary fixture
 - Remote URLs, framework APIs, rendered UI, actual accessibility, real authorization, deployment configuration, and agent behavior are not proved by these tests.
 - Fictional contract fixtures (including their commit IDs/dates) are not real adoptions or evidence of a successful bootstrap. Provenance syntax checks do not contact source hosts, prove a commit exists, or prove approval actually happened.
 - Operation/report guards validate documentation structure, not model judgment, correct severity assignments, or an agent's actual permission compliance. Manual three-way merge/conflict resolution is not automated by these tests.
+- Presentation tests validate file structure and asset dimensions, not visual quality, GitHub’s Markdown rendering, issue-form schema acceptance, badge availability, or remote repository settings. Inspect the rendered README/social preview and GitHub settings manually.
 - For relocated libraries, review links and the merged entry point against the target tree; kit-mode checks do not validate the entire consumer repo.
 - Test workflow configuration in GitHub as well as locally; do not report a remote run as green without evidence.
 

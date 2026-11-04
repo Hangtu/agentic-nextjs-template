@@ -53,6 +53,7 @@ Applicability and preservation rules: [architecture/applicability.md](docs/archi
 |---|---|
 | Doctor / Adopt / Verify / missing context | `docs/playbooks/adopt-project.md`, `docs/architecture/applicability.md` |
 | Update copied standards | `docs/playbooks/update-kit.md`; manual three-way review, no automatic sync |
+| README, artwork, community files | `README.md`, `CONTRIBUTING.md`, `assets/README.md`, `docs/operations/github-presentation.md` |
 | Create an approved new app | `docs/playbooks/bootstrap-project.md` |
 | Feature | `docs/playbooks/add-feature.md`; choose an appropriately scoped reference |
 | Page / public SEO | `docs/playbooks/add-page.md`, `docs/discoverability/seo.md` |

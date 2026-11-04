@@ -13,6 +13,9 @@ const REQUIRED = [
   "docs/playbooks/bootstrap-project.md", "docs/templates/project-context.md",
   "docs/templates/adoption-report.md", "docs/quality/kit-validation.md",
   "docs/operations/application-ci.md", "docs/playbooks/update-kit.md", ".github/workflows/ci.yml",
+  "LICENSE", "CONTRIBUTING.md", "SECURITY.md", "CODE_OF_CONDUCT.md",
+  "assets/cover.svg", "assets/mark.svg", "assets/social-preview.png",
+  "docs/operations/github-presentation.md",
 ];
 
 function outside(root, path) {
