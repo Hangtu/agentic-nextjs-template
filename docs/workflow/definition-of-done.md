@@ -11,8 +11,9 @@
 - [ ] The requested operation boundary was respected: Doctor delivered a report without incorporation; Verify ran only approved checks and did not repair source/configuration.
 
 ## Verification
-- [ ] The contract's checks were actually run, with commands/results and blocked prerequisites reported.
-- [ ] Kit work passes `node scripts/verify-kit.mjs`; app work uses app checks, not the kit checker as a substitute.
+- [ ] Check execution stayed within the requested operation's authorization; report commands/results, blocked prerequisites, and not-run checks explicitly.
+- [ ] Doctor executed no project scripts/checks; static inspection is not runtime verification. Missing execution authorization is not permission to run checks to complete this list.
+- [ ] When authorized, kit work uses `node scripts/verify-kit.mjs`; app work uses its approved checks, not the kit checker as a substitute.
 - [ ] New logic has behavior-focused tests. A bug fix includes an executed failing regression before the fix.
 - [ ] Changed critical journeys have appropriate E2E coverage; build results are recorded for application changes.
 - [ ] Existing failures/debt are distinguished from new regressions; no tests/thresholds were weakened.

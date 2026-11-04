@@ -29,11 +29,38 @@ for (const operation of ["Doctor", "Adopt", "Verify"]) {
 
 test("the report distinguishes decisions from evidence-backed findings", async () => {
   const report = await read("docs/templates/adoption-report.md");
+  const findings = operationSection(report, "Findings");
+  const decisions = operationSection(report, "Adoption decisions");
+  assert.ok(findings, "Technical findings need their own section");
+  assert.ok(decisions, "Adoption decisions need a separate section");
   for (const label of ["Finding status", "Priority", "Evidence", "Impact", "Confidence", "Next action"]) {
-    assert.ok(report.includes(`**${label}:**`), label);
+    assert.ok(findings.includes(`**${label}:**`), label);
   }
+  assert.ok(decisions.includes("| Classification | Area | Evidence / finding ID |"));
   assert.ok(report.includes("## Preserve / no change"));
-  assert.ok(report.includes("## Adoption decisions"));
+});
+
+test("AGENTS distinguishes available check commands from execution permission", async () => {
+  const agents = await read("AGENTS.md");
+  const always = agents.match(/^\*\*Always:\*\*(.+)$/m)?.[1];
+  assert.ok(always);
+  assert.ok(!always.includes("run the contract's checks"), "A global check obligation must not override Doctor");
+  const verification = operationSection(agents, "2. Verification boundaries");
+  assert.ok(verification);
+  for (const operation of ["Doctor", "Adopt", "Verify"]) {
+    assert.ok(verification.includes(`**${operation}:**`), operation);
+  }
+  assert.ok(verification.includes("not blanket permission"));
+});
+
+test("completion and review instructions preserve Doctor's no-execution boundary", async () => {
+  const completion = operationSection(await read("docs/workflow/definition-of-done.md"), "Verification");
+  assert.ok(completion);
+  assert.ok(!completion.includes("The contract's checks were actually run"), "Completion must not force unauthorized execution");
+  assert.ok(completion.includes("Doctor"));
+  const review = await read("docs/playbooks/code-review.md");
+  assert.ok(review.includes("Doctor"));
+  assert.ok(review.includes("approved checks"));
 });
 
 test("manual updates compare adopted source, candidate source, and local library", async () => {

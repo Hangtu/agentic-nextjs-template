@@ -12,7 +12,15 @@ Tool-agnostic instructions for agents and humans. Read the project contract firs
 - **Existing app:** preserve compatible conventions and merge its instructions; do not replace its stack to match this kit.
 - If the reference library was relocated, use the contract's paths, not the illustrative `docs/` or `src/` paths below.
 
-## 2. Verification commands
+## 2. Verification boundaries
+
+- **Doctor:** inspect without executing project scripts or checks. Report unexecuted checks as not-run, not passed.
+- **Adopt:** run only checks explicitly approved in the incorporation plan, including any authorized before/after checks.
+- **Verify:** run only reviewed and authorized checks; never repair source/configuration or install missing tools automatically.
+
+An approved contract is not blanket permission to execute commands. Approved implementation work uses the checks within its authorized scope; if execution is not authorized, request it and report the limitation instead of running commands to satisfy a checklist.
+
+### Command references — only when execution is authorized
 
 | Context | Command |
 |---|---|
@@ -69,7 +77,7 @@ Full index: [docs/README.md](docs/README.md). Day-to-day procedure: [agent-workf
 
 ## 5. Boundaries
 
-**Always:** keep scope small, protect existing work, test changed behavior, run the contract's checks, update the owning doc, and report evidence and limitations.
+**Always:** keep scope small, protect existing work, respect the requested operation and its execution permissions, test changed behavior within approved implementation work, update the owning doc, and report evidence and limitations.
 
 **Ask first:** dependency changes; auth/permission/security policy; DB rewrites or destructive schema changes; CI/build/lint/TS configuration; large migrations or deletion; paid/external operations; commits, pushes, or PRs. Approval of a specific implementation plan covers its listed changes, not unrelated operations.
 
