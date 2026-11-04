@@ -21,7 +21,7 @@ jobs:
       SKIP_ENV_VALIDATION: "true"
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4 # reads the version from package.json "packageManager"
+      - uses: pnpm/action-setup@v5 # reads the version from package.json "packageManager"
       - uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
@@ -56,7 +56,7 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .node-version
