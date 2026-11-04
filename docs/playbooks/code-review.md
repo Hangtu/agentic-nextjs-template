@@ -7,7 +7,7 @@
 1. **Context:** read the PR description, linked spec or issue, and acceptance criteria.
 2. **Diff:** `git diff main...HEAD` (or the PR diff). For each changed file, open enough surrounding code to understand it.
 3. **Check two axes independently:** standards and requested acceptance criteria. Within applicable categories below, cite the rule/source and evidence. Distinguish hard violations from maintainability heuristics; a different approved library is not a defect.
-4. **Run** the contract's checks (kit: `node scripts/verify-kit.mjs`; app: agreed checks/build/affected E2E). Record existing failures, missing tooling, and manual-review gaps separately.
+4. **Run only reviewed, approved checks** permitted by the requested operation (kit: `node scripts/verify-kit.mjs`; app: agreed checks/build/affected E2E). Doctor executes no project scripts/checks; without execution authorization, report checks as not-run and request permission. Record existing failures, missing tooling, and manual-review gaps separately.
 5. **Report** in the format at the end. Approve only with zero blockers and zero majors.
 
 ## Checklist by category

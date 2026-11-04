@@ -1,0 +1,80 @@
+name: Bug report
+description: Report a defect in the kit's instructions, checks, scripts, or artwork
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the kit. This form is for defects in **this repository**, not for incidents in an application that adopted it.
+
+        Do not include secrets, personal data, private repository URLs, or production data. Report security issues privately via the Security link instead.
+
+  - type: input
+    id: revision
+    attributes:
+      label: Kit revision
+      description: Commit SHA, release, or branch you inspected. Do not guess a revision.
+      placeholder: e.g. 1dd2050
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Doctor / Adopt / Verify instructions
+        - Project contract or provenance
+        - Kit checker or regression test
+        - README, artwork, or community files
+        - CI, hooks, or dependency guidance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What is wrong?
+      description: Describe the observed defect and why it matters. Separate evidence from assumptions.
+      placeholder: "The checker accepts X even though the contract says Y. Evidence: ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Exact commands or file contents that show the problem. Redact sensitive information.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should happen instead, and which document or test owns that behavior?
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification evidence
+      description: Commands actually run, their results, and anything blocked or not run.
+      render: shell
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I removed secrets, personal data, and private application details.
+          required: true
+        - label: This is not a security vulnerability and not an incident in a downstream application.
+          required: true
+        - label: I understand that an unexecuted check is not evidence of success.
+          required: true

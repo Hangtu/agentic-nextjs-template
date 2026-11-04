@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation index
+    url: https://github.com/Hangtu/agentic-nextjs-template/blob/main/docs/README.md
+    about: Read the task-routed standards, playbooks, and operation protocols first.
+  - name: Report a security vulnerability
+    url: https://github.com/Hangtu/agentic-nextjs-template/security/advisories/new
+    about: Report vulnerabilities privately. Do not open a public issue.
+  - name: Contribution guide
+    url: https://github.com/Hangtu/agentic-nextjs-template/blob/main/CONTRIBUTING.md
+    about: Scope, local checks, artwork rules, and pull-request expectations.

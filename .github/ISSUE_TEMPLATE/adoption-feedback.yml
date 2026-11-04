@@ -1,0 +1,82 @@
+name: Adoption feedback
+description: Share evidence from Doctor, Adopt, Verify, or a manual kit update
+title: "[Adoption]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Real exercises are more useful than theoretical reviews. Share the **process and evidence**, not private source code or customer data. Use a redacted, isolated project where possible.
+
+  - type: dropdown
+    id: target
+    attributes:
+      label: Target type
+      options:
+        - New application
+        - Existing application
+        - Standalone Doctor assessment
+        - Standalone Verify run
+        - Manual kit update
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operation
+    attributes:
+      label: Operation
+      options:
+        - Doctor
+        - Adopt
+        - Verify
+        - Update
+        - Several operations
+    validations:
+      required: true
+
+  - type: input
+    id: versions
+    attributes:
+      label: Versions and tools
+      description: Kit revision, agent/model/harness, framework and package-manager versions. Do not include account details.
+      placeholder: Kit 1dd2050; Codex; Next.js 16.x; pnpm 10.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: worked
+    attributes:
+      label: What worked?
+      description: Which decisions or outputs were useful, and why?
+
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where did it break down?
+      description: Confusing instructions, missing evidence, false positives, permission conflicts, or manual intervention. Quote file paths and commands where possible.
+    validations:
+      required: true
+
+  - type: textarea
+    id: preserved
+    attributes:
+      label: What did the agent preserve or unnecessarily change?
+      description: Especially existing architecture, providers, instructions, config, or checks. Note whether the change was approved.
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Redacted evidence
+      description: Commands run, outcomes, links to public issues/PRs, or a minimal reproduction. Never attach secrets or private data.
+      render: shell
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I redacted secrets, personal data, and private application details.
+          required: true
+        - label: This is not a security report; security reports use the private advisory link.
+          required: true
+        - label: I have permission to share the evidence provided.
+          required: true

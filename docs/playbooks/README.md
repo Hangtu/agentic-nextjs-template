@@ -4,7 +4,10 @@ Task procedures, scoped by the approved project contract and [applicability](../
 
 | Task | Playbook |
 |---|---|
-| Diagnose/incorporate/re-adopt the kit | [adopt-project.md](adopt-project.md) |
+| Inspect without installing (Doctor) | [adopt-project.md#doctor](adopt-project.md#doctor) |
+| Apply an explicitly approved incorporation plan (Adopt) | [adopt-project.md#adopt](adopt-project.md#adopt) |
+| Run approved checks without repairs (Verify) | [adopt-project.md#verify](adopt-project.md#verify) |
+| Review/update a copied kit manually | [update-kit.md](update-kit.md) |
 | Create an explicitly approved new app | [bootstrap-project.md](bootstrap-project.md) |
 | Build a new feature ("create feature X") | [add-feature.md](add-feature.md) |
 | Add a page or route | [add-page.md](add-page.md) |

@@ -1,0 +1,68 @@
+name: Feature request
+description: Propose a focused improvement to the kit, not a new full-stack generator
+title: "[Feature]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The kit deliberately stays small. Explain the concrete problem first; a new document, dependency, or automation layer needs evidence that the existing contract cannot solve it.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What recurring task or failure does this address? Who encounters it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the smallest change that solves the problem. Note affected docs, operations, scripts, or contracts.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: operation
+    attributes:
+      label: Primary operation affected
+      options:
+        - Doctor
+        - Adopt
+        - Verify
+        - Kit maintenance
+        - Documentation or presentation
+        - Not sure yet
+    validations:
+      required: true
+
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Scope and permission boundaries
+      description: What may this change write, execute, install, or migrate? What must remain untouched?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Existing docs, workflows, or smaller fixes that could solve the same problem.
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: How could we verify it?
+      description: Tests, scenarios, or evidence that would show this works without weakening the kit.
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I checked the documentation index and existing issues first.
+          required: true
+        - label: This proposal does not require inventing adoption evidence or silently changing consumers' instructions.
+          required: true
