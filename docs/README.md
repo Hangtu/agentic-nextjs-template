@@ -1,6 +1,16 @@
 # Documentation Index
 
-Everything an agent or developer needs to build and maintain this project. `AGENTS.md` (repo root) is the entry point; this page lists every doc and when to read it.
+The task-routed reference library. Start with the approved [project contract](project-context.md) and [applicability](architecture/applicability.md), not every document. `MUST`/`SHOULD` apply within the relevant capability; examples/defaults do not activate infrastructure. In kit mode, product documents are consumer templates, not an instruction to initialize an app.
+
+## Onboarding and active decisions
+
+| Doc | Read when |
+|---|---|
+| [project-context.md](project-context.md) | Every session: mode, approval, capabilities, actual paths and checks |
+| [playbooks/adopt-project.md](playbooks/adopt-project.md) | Diagnose/incorporate/re-adopt without overwrites |
+| [architecture/applicability.md](architecture/applicability.md) | Resolve universal requirements versus conditional recipes |
+| [templates/adoption-report.md](templates/adoption-report.md) | Present evidence and a plan before target writes |
+| [templates/project-context.md](templates/project-context.md) | Create a target contract after approval |
 
 ## Product (project-specific; fill these first)
 | Doc | Read when |
@@ -15,7 +25,8 @@ Everything an agent or developer needs to build and maintain this project. `AGEN
 | [architecture/overview.md](architecture/overview.md) | First day; cross-layer changes |
 | [architecture/project-structure.md](architecture/project-structure.md) | Creating any file or folder |
 | [architecture/tech-stack.md](architecture/tech-stack.md) | Choosing libraries/APIs; checking versions and outdated patterns |
-| [architecture/reference-feature.md](architecture/reference-feature.md) | Building a feature (the pattern to mirror) |
+| [architecture/reference-landing.md](architecture/reference-landing.md) | Static monolingual public UI without SaaS infrastructure |
+| [architecture/reference-feature.md](architecture/reference-feature.md) | Expanded auth/DB/i18n feature, only for selected capabilities |
 | [architecture/decisions/](architecture/decisions/README.md) | Understanding or changing a technical decision (ADRs) |
 
 ## Standards (how code is written)
@@ -42,7 +53,8 @@ Everything an agent or developer needs to build and maintain this project. `AGEN
 ## Quality
 | Doc | Read when |
 |---|---|
-| [quality/testing.md](quality/testing.md) | Writing tests |
+| [quality/testing.md](quality/testing.md) | Testing actual application behavior |
+| [quality/kit-validation.md](quality/kit-validation.md) | Kit checks and separate application validation evidence |
 | [quality/accessibility.md](quality/accessibility.md) | Any UI work |
 | [quality/performance.md](quality/performance.md) | Pages, client code, images, dependencies |
 | [quality/security.md](quality/security.md) | Auth, input, data exposure, headers, dependencies |
@@ -61,6 +73,7 @@ Everything an agent or developer needs to build and maintain this project. `AGEN
 | [operations/environment-and-config.md](operations/environment-and-config.md) | Env vars, site config, feature flags |
 | [operations/observability.md](operations/observability.md) | Logging, errors, monitoring |
 | [operations/deployment.md](operations/deployment.md) | CI/CD, environments, migrations in deploy, rollback |
+| [operations/application-ci.md](operations/application-ci.md) | Install/merge capability-aware app CI after approval |
 | [operations/dependencies.md](operations/dependencies.md) | Adding or updating packages |
 
 ## Workflow

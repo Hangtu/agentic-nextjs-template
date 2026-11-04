@@ -1,6 +1,7 @@
 # Reference Feature: `projects`
 
-> **Read when:** building a new feature, especially in a fresh codebase where there's nothing to copy yet. Mirror this structure and these patterns. Once real features exist, the closest real feature is the better reference.
+> **Read when:** building an authenticated DB-backed feature with selected i18n/form tooling. This is an expanded recipe, not a mandatory feature scaffold.
+> For static content start with [reference-landing.md](reference-landing.md). Omit files/capabilities without consumers. Ordinary private dynamic reads do not require cache tags; add them only for an actual cached projection.
 
 A signed-in user can list, create and archive their own projects.
 
@@ -92,7 +93,7 @@ import { and, asc, desc, eq } from "drizzle-orm";
 
 import { db } from "@/server/db";
 import { projects } from "@/server/db/schema";
-import { requireUser } from "@/server/auth/session";
+import { requireActor } from "@/server/auth/session";
 
 import { PROJECTS_PAGE_SIZE } from "../constants";
 import type { ProjectSort } from "../search-params";
@@ -106,7 +107,7 @@ const projectColumns = {
 
 /** Projects of the signed-in user. Auth-aware: never pass a user ID in. Dynamic. */
 export async function listProjects({ page, sortBy }: { page: number; sortBy: ProjectSort }): Promise<Project[]> {
-  const user = await requireUser();
+  const user = await requireActor();
   const rows = await db
     .select(projectColumns)
     .from(projects)
@@ -121,8 +122,13 @@ export async function listProjects({ page, sortBy }: { page: number; sortBy: Pro
 `server/cache-tags.ts`, `server/mutations.ts` (`createProject`, `archiveProject`) and `server/actions.ts` (`createProjectAction`, `archiveProjectAction`) are exactly as shown in [data-fetching-and-caching.md](../backend/data-fetching-and-caching.md) and [server-actions.md](../backend/server-actions.md). `createProject`:
 
 ```ts
-export async function createProject(input: CreateProjectInput & { ownerId: string }): Promise<Project> {
-  const [row] = await db.insert(projects).values(input).returning(projectColumns);
+// In server/mutations.ts; import requireActor from "@/server/auth/session".
+export async function createProject(input: CreateProjectInput): Promise<Project> {
+  const user = await requireActor();
+  const [row] = await db.insert(projects).values({ ...input, ownerId: user.id }).returning({
+    id: projects.id, name: projects.name, description: projects.description,
+    status: projects.status, createdAt: projects.createdAt,
+  });
   if (!row) throw new AppError("internalError");
   return toProject(row);
 }

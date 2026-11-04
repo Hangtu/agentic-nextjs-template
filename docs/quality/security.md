@@ -1,7 +1,8 @@
 # Security
 
 > **Read when:** any change to auth, data access, input handling, file uploads, external calls, headers, dependencies, or logging. Every PR is reviewed against this doc.
-> **Baseline:** OWASP Top 10:2025, OWASP ASVS 5.0 Level 1 (Level 2 for sensitive data), Next.js data-security guidance.
+> **Baseline:** OWASP Top 10 / ASVS principles and version-matched Next.js security guidance. No certification or exhaustive audit is implied.
+> **Scope:** controls apply to attack surfaces that exist, regardless of capability labels. Library/provider examples are conditional preferences, not permission to migrate an existing stack.
 
 ## Lessons this doc is built on
 
@@ -29,7 +30,7 @@
 
 ### Input and output
 
-- **SEC-1 (MUST)** Validate every external input with Zod at the boundary: actions, route handlers, `params`, `searchParams`, cookies you read, webhook bodies, third-party responses, env vars.
+- **SEC-1 (MUST)** Validate every external input with the approved runtime validator (Zod for new work) at the boundary: actions, route handlers, `params`, `searchParams`, cookies you read, webhook bodies, third-party responses, env vars.
 - **SEC-2 (MUST)** Use allowlists, not blocklists: `z.enum`, `z.strictObject`, explicit `select` of columns, explicit DTOs.
 - **SEC-3 (MUST NOT)** Render user-controlled HTML. React escapes text by default; keep it that way. Markdown or rich text from users is rendered through a sanitizer, approved by ADR.
 - **SEC-4 (MUST)** Redirects and links built from user input are validated as same-site relative paths (`/` but not `//`), or checked against an allowlist of hosts.
@@ -46,7 +47,7 @@
 
 Set in `next.config.ts` (`headers()`) and, for the nonce-based CSP, in `proxy.ts`:
 
-- **SEC-20 (MUST)** `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`
+- **SEC-20 (MUST)** Enforce HTTPS and an appropriate HSTS policy in production. Review domain/subdomain ownership before enabling `includeSubDomains` or preload; never apply a universal domain policy blindly during adoption.
 - **SEC-21 (MUST)** `Content-Security-Policy` with per-request nonces (`script-src 'self' 'nonce-…' 'strict-dynamic'`), `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`, `form-action 'self'`. Start with `Content-Security-Policy-Report-Only` in preview, then enforce. Note that a nonce-based CSP makes pages dynamic. If most pages must stay static, use a hash-based CSP or Next's SRI support instead, and record the choice in an ADR.
 - **SEC-22 (MUST)** `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()` (open only what a feature needs), `Cross-Origin-Opener-Policy: same-origin`.
 - **SEC-23 (MUST)** `poweredByHeader: false` in `next.config.ts`.
@@ -67,7 +68,7 @@ Set in `next.config.ts` (`headers()`) and, for the nonce-based CSP, in `proxy.ts
 
 ### Secrets and environments
 
-- **SEC-40 (MUST)** Secrets live in Vercel environment variables (per environment) and the local `.env.local` (gitignored). `.env.example` lists names only.
+- **SEC-40 (MUST)** Secrets live in the approved per-environment secret manager and gitignored local env files, not source/docs. `.env.example` documents names and safe non-secret example values for actual integrations only.
 - **SEC-41 (MUST)** Rotate secrets on suspected exposure, after team member offboarding, and after any critical framework advisory that says so.
 - **SEC-42 (MUST)** Enable GitHub secret scanning with push protection. Optionally, add a local pre-commit secret scanner (e.g., gitleaks) to `lefthook.yml`.
 

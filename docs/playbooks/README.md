@@ -1,10 +1,11 @@
 # Playbooks
 
-Step-by-step procedures for recurring tasks. Agents: when a task matches a playbook, **follow it step by step** and mention in your report that you did. Each playbook ends with a verification step; don't skip it.
+Task procedures, scoped by the approved project contract and [applicability](../architecture/applicability.md). Apply relevant steps; explain N/A and blocked checks instead of installing unused capabilities. Commands/paths are new-app defaults unless the contract preserves equivalents.
 
 | Task | Playbook |
 |---|---|
-| Create the app from this kit | [bootstrap-project.md](bootstrap-project.md) |
+| Diagnose/incorporate/re-adopt the kit | [adopt-project.md](adopt-project.md) |
+| Create an explicitly approved new app | [bootstrap-project.md](bootstrap-project.md) |
 | Build a new feature ("create feature X") | [add-feature.md](add-feature.md) |
 | Add a page or route | [add-page.md](add-page.md) |
 | Add an HTTP endpoint, webhook, or cron job | [add-api-endpoint.md](add-api-endpoint.md) |

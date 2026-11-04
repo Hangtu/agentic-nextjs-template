@@ -1,4 +1,4 @@
-name: ci
+name: kit-ci
 
 on:
   pull_request:
@@ -6,68 +6,23 @@ on:
     branches: [main]
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: kit-ci-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
-  quality:
-    name: Typecheck, lint, unit & integration tests
+  kit:
+    name: Kit checks (Node ${{ matrix.node }})
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      SKIP_ENV_VALIDATION: "true"
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        node: [22, 26]
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4 # reads the version from package.json "packageManager"
       - uses: actions/setup-node@v5
         with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm typecheck
-      - run: pnpm lint
-      - run: pnpm format:check
-      - run: pnpm i18n:check
-      - run: pnpm knip
-      - run: pnpm test
-
-  e2e:
-    name: Build + E2E + accessibility
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: quality
-    services:
-      postgres:
-        image: postgres:17
-        env:
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: app
-          POSTGRES_DB: app
-        ports: ["5432:5432"]
-        options: >-
-          --health-cmd "pg_isready -U app" --health-interval 5s --health-timeout 5s --health-retries 10
-    env:
-      DATABASE_URL: postgres://app:app@localhost:5432/app
-      BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
-      BETTER_AUTH_URL: http://localhost:3000
-      NEXT_PUBLIC_SITE_URL: http://localhost:3000
-    steps:
-      - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5
-        with:
-          node-version-file: .node-version
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm db:migrate
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
-      - uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 7
+          node-version: ${{ matrix.node }}
+      - run: node scripts/verify-kit.mjs

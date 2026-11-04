@@ -1,5 +1,7 @@
 # Playbook: Upgrade Dependencies
 
+> **Scope:** approved application tools. Preserve the existing package manager and use its equivalent commands. Kit runtime/action updates use kit checks. Merge/commit/deploy only when authorized.
+
 ## Routine (patch/minor, usually via Dependabot)
 
 1. Read the changelog for anything notable (deprecations, behavior changes).
@@ -14,10 +16,10 @@
 4. **Upgrade:** `pnpm add <pkg>@latest` (or the target major), then `pnpm install`.
 5. **Fix** type errors and deprecations properly. Don't suppress them.
 6. **Update the docs:**
-   - the "Verified with" column in [tech-stack.md](../architecture/tech-stack.md);
+   - exact versions and actual compatibility evidence in the project contract; [tech-stack.md](../architecture/tech-stack.md) only if the preferred supported baseline changes;
    - any snippet or rule whose API changed;
-   - the "Outdated patterns" table with the newly deprecated APIs;
-   - an ADR if the upgrade changes a decision (e.g., moving to TypeScript 7 or ESLint 10 once the pins in tech-stack.md can be lifted).
+   - version-sensitive pattern guidance with newly confirmed deprecations;
+   - an ADR only when the upgrade changes a consequential architectural decision, not merely because a version number changed.
 7. **Verify:** `pnpm verify`, `pnpm build`, `pnpm test:e2e`, plus a manual pass over key journeys on the preview deployment. Watch errors and Web Vitals after release.
 
 ## Security releases

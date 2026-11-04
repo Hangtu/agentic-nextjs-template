@@ -1,9 +1,10 @@
 # SEO (Search Engine Optimization)
 
-> **Read when:** creating or changing any public (indexable) page, URL, redirect, or content type.
+> **Read when:** creating or changing indexable public content; private areas only need the relevant noindex/access policy.
+> **Scope:** locale examples apply only with i18n. Paths/helpers are defaults; preserve an equivalent approved implementation. Static metadata is valid; do not add unnecessary wrappers.
 > **See also:** [ai-discoverability.md](ai-discoverability.md) (LLMs and AI search), [i18n.md](i18n.md), [performance.md](../quality/performance.md) (Core Web Vitals affect ranking).
 
-## Building blocks (created at bootstrap)
+## Building blocks (create only those needed for public content)
 
 | Path | Purpose |
 |---|---|
@@ -20,8 +21,8 @@
 
 ### Metadata
 
-- **SEO-1 (MUST)** Every public page exports `generateMetadata` using `buildPageMetadata`. Titles are unique and descriptive: about 50–60 characters, with the primary topic first, then `| Site name` (set by the root layout's `title.template`). Descriptions are unique and about 140–160 characters.
-- **SEO-2 (MUST)** Every public page has a **self-referencing canonical URL** (absolute, production host, no query params except meaningful ones like pagination) and `alternates.languages` for every locale, plus `x-default` pointing at the default locale.
+- **SEO-1 (MUST)** Every indexable public page provides unique, descriptive title/description metadata. Use a static `metadata` export for static values, `generateMetadata` for dynamic values, and `buildPageMetadata` only when it earns reuse. Rough title/description length guidance is not a reason to distort content.
+- **SEO-2 (MUST)** Every indexable public page has an appropriate canonical URL (absolute production host; no irrelevant query params). When i18n is active, add `alternates.languages` for actual equivalents plus `x-default`; never fabricate locale alternates.
 - **SEO-3 (MUST)** Every non-public area is `noindex`: `(app)`, `(auth)`, search results, filtered/sorted variants, previews, error pages. Use `robots: { index: false }` in metadata. Use `robots.txt` `Disallow` only for crawl waste (e.g., `/api/`), never to hide private pages.
 - **SEO-4 (MUST)** Open Graph and Twitter metadata on every public page: `og:title`, `og:description`, `og:image` (1200×630, under 8 MB, text readable at small sizes), `og:locale`, `og:url`.
 - **SEO-5 (MUST NOT)** Use obsolete tags: `meta keywords`, `rel=prev/next` as an indexing signal, or a `revisit-after` meta.
@@ -42,18 +43,18 @@
 
 ### Structured data (JSON-LD)
 
-- **SEO-30 (MUST)** Add JSON-LD that matches **visible** content, with the `<JsonLd>` component:
+- **SEO-30 (MUST)** Where structured data is relevant, use JSON-LD matching **visible** content with the safe `<JsonLd>` component. Select actual entities; do not invent an organization, offers, breadcrumbs, or ratings to fill a checklist:
   - **Site-wide (root marketing layout):** `Organization` (logo, `sameAs` socials) + `WebSite`.
   - **Pages below the home page:** `BreadcrumbList`.
   - **Blog and articles:** `Article` / `BlogPosting`, with `author` (a `Person` with `url`/`sameAs`), `datePublished` and `dateModified` (ISO 8601 with timezone), `image`.
   - **Product/pricing:** `SoftwareApplication` or `Product`, with `Offer`. Use `AggregateRating` only with real, visible reviews.
   - **Others, as content warrants:** `FAQPage` (semantic value; Google shows its rich results only for limited sites), `VideoObject`, `Event`, `ProfilePage`.
 - **SEO-31 (MUST)** Validate new structured data with Google's Rich Results Test and the Schema.org validator before release. Check Google's search gallery: several rich-result types were retired in 2025–2026, so don't add a type for a rich result Google no longer shows unless the semantic value justifies it.
-- **SEO-32 (MUST)** JSON-LD is serialized with `<` escaped as `<`, so it can't break out of the script tag. Only the `<JsonLd>` component may use `dangerouslySetInnerHTML`.
+- **SEO-32 (MUST)** Serialize JSON-LD with `<` replaced by the literal Unicode escape, using `JSON.stringify(data).replace(/</g, "\\u003c")`, so attacker-controlled `</script>` cannot terminate the script. Test hostile content and round-trip JSON. Only the safe `<JsonLd>` component may use `dangerouslySetInnerHTML`.
 
 ### Sitemaps and crawling
 
-- **SEO-40 (MUST)** `src/app/sitemap.ts` lists every indexable URL × locale, with `alternates.languages` and an **accurate** `lastModified` (from content `updatedAt`, not the build time). Dynamic content (blog posts) comes from the DB, cached with tags.
+- **SEO-40 (MUST)** The sitemap lists actual indexable URLs, includes locale alternates only with i18n, and uses truthful `lastModified` values when known (not invented build timestamps). Content can come from static files, a CMS, or a selected DB; cache only when justified.
 - **SEO-41 (MUST)** Split sitemaps beyond 50,000 URLs (`generateSitemaps`).
 - **SEO-42 (MUST)** Production `robots.ts` references the sitemap URL. Preview deployments are `noindex` (Vercel adds `X-Robots-Tag: noindex` on preview URLs; keep it).
 - **SEO-43 (SHOULD)** Notify Bing/IndexNow when important content is published or updated (via `after()` in the publish mutation).
@@ -62,7 +63,19 @@
 
 - **SEO-50 (MUST)** Public pages meet the Core Web Vitals targets in [performance.md](../quality/performance.md).
 
-## Example
+## Script-safe serialization reference
+
+This JavaScript example is exercised by the kit regression tests. In a TypeScript app, type the input with the selected JSON-LD schema; keep the same serialization behavior.
+
+```js
+function serializeJsonLd(data) {
+  const json = JSON.stringify(data);
+  if (json === undefined) throw new TypeError("JSON-LD must be JSON-serializable");
+  return json.replace(/</g, "\\u003c");
+}
+```
+
+## Example — i18n and dynamic metadata selected
 
 ```tsx
 // src/app/[locale]/(marketing)/pricing/page.tsx

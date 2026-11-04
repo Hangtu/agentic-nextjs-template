@@ -1,42 +1,15 @@
 # Playbook: Add a Page
 
-> **Use when:** adding a new route (public marketing page, app screen, auth screen).
+> **Use when:** adding a route. Read the project contract first; locale/auth groups are conditional.
 
-## Inputs
+1. **Classify.** Is the page intended for public indexing, private users, or neither? Do not infer indexing solely from absence of authentication.
+2. **Choose the actual route.** Monolingual default: `src/app/(marketing)/<path>/page.tsx` or simply `src/app/<path>/page.tsx`. With i18n, use the selected locale segment. Create route groups only when their layouts/policies earn them.
+3. **Compose server-first.** Keep data/business operations out of route files. Simple static markup is valid; extract meaningful sections, not speculative server layers. Use one main landmark and a clear heading hierarchy.
+4. **Metadata.** Indexable content needs descriptive title/description, canonical, social metadata, and sitemap coverage. Use static `metadata` for static values, `generateMetadata` when dynamic, and a helper where reused. Private areas need an appropriate noindex policy; noindex is not access control.
+5. **Data/params.** Validate external params/search input. Handle missing content with real status semantics. With Cache Components, request-dependent work belongs under Suspense; cache shared reads only when justified.
+6. **States and accessibility.** Relevant loading/empty/error/success states, error recovery, keyboard/focus, labels, contrast, responsive layout. Static pages do not need fake loading/data states.
+7. **Languages.** With i18n, selected catalog keys, localized metadata/navigation, and real hreflang equivalents. Otherwise use monolingual copy and normal Next navigation.
+8. **Discovery/navigation.** Link from existing content/menu. Add truthful structured data only where applicable. `llms.txt` is an optional extra, not a launch blocker.
+9. **Tests/review.** Browser smoke for content/navigation and axe; indexable pages assert metadata/canonical/sitemap, and locale alternates only when active. Review manual accessibility separately.
 
-- Purpose of the page, audience, and whether it is **public (indexable)** or private.
-- For public pages that target search: a [SEO page brief](../templates/seo-page-brief.md).
-
-## Steps
-
-1. **Pick the route group:** `(marketing)` public, `(auth)` sign-in flows, `(app)` signed-in product. Path: `src/app/[locale]/(group)/<kebab-path>/page.tsx` (naming: NAME-30…32).
-2. **Write a thin page.**
-   - `export default async function <Name>Page(props: PageProps<"/[locale]/<path>">)`.
-   - Compose feature components; no business logic or DB access in the route file (ARCH-1).
-   - One `<h1>`.
-   - Request-dependent parts go inside `<Suspense fallback={<Skeleton/>}>` (DATA-4).
-3. **Metadata.**
-   - Public pages: `generateMetadata` using `buildPageMetadata` (title, description, canonical, hreflang, OG) (SEO-1…4).
-   - Private pages: `robots: { index: false }` (inherited from the group layout) plus a title.
-4. **Dynamic segments.**
-   - Await `params`; validate IDs/slugs (Zod) and call `notFound()` for invalid or missing data.
-   - For public dynamic pages, add `generateStaticParams` when the set is known, and cache the data with `"use cache"` + tags.
-5. **States.**
-   - `loading.tsx` if the whole route waits on data;
-   - the group `error.tsx` already exists (add a route-specific one only if the recovery differs);
-   - `not-found` handling.
-6. **i18n.** Page namespace keys in every locale, including the `Metadata.<page>` title and description.
-7. **SEO extras (public pages).**
-   - Add the route to `publicRoutes` in `src/config/routes.ts` (sitemap + llms.txt).
-   - Add JSON-LD (`BreadcrumbList`, plus the content type) with `<JsonLd>`.
-   - Override the OG image if the page deserves its own.
-8. **Navigation.** Link to the page from at least one existing page or menu, using `Link` from `@/i18n/navigation`.
-9. **Tests.** An E2E visit in every locale (renders, has `h1`, axe clean). Public pages: assert the canonical and `hreflang` tags exist.
-
-## Verify
-
-`pnpm verify`; `pnpm build` (Cache Components errors surface at build time); view the page in every locale, at mobile width, and with the keyboard. For public pages, run Lighthouse on the preview (SEO 100, Accessibility 100).
-
-## Done when
-
-The page is reachable, localized, accessible, has correct metadata/indexing, and the checks pass.
+Run the contract's checks, production build, and affected E2E. Report actual evidence and unexecuted checks. See [SEO](../discoverability/seo.md), [accessibility](../quality/accessibility.md), and [Definition of Done](../workflow/definition-of-done.md).

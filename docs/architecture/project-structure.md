@@ -1,9 +1,14 @@
 # Project Structure
 
 > **Read when:** creating any new file or folder, or when unsure where code belongs.
-> **Enforced by:** ESLint `no-restricted-imports` per folder (config in [bootstrap-project.md](../playbooks/bootstrap-project.md)), `server-only`, code review.
+> **Enforced by:** the target's tested import restrictions, `server-only`, and code review. Base Next ESLint alone does not enforce the entire matrix.
+> **Scope:** default responsibilities for approved new apps. Existing paths are mapped in the project contract; this tree does not authorize a migration. See [applicability](applicability.md).
 
-## The tree
+## Start small
+
+A monolingual landing can use `src/app/{layout,page,globals.css}`, meaningful section components, public assets, public metadata/sitemap, and E2E smoke coverage. See [reference-landing.md](reference-landing.md). No server, DB, auth, catalog, proxy, or empty feature files are required.
+
+## The expanded tree — create only selected responsibilities
 
 ```text
 .
@@ -17,7 +22,7 @@
 ├── scripts/                       # One-off/dev scripts run with tsx (seed, i18n check)
 └── src/
     ├── app/                       # ROUTING ONLY: pages, layouts, route handlers, metadata files
-    │   ├── [locale]/              # Every page lives under the locale segment (root layout here)
+    │   ├── [locale]/              # Only with i18n; otherwise root layout/pages live directly in app
     │   │   ├── layout.tsx         # <html lang dir>, fonts, providers
     │   │   ├── not-found.tsx
     │   │   ├── (marketing)/       # Public, indexable pages (home, pricing, blog, legal)
@@ -88,7 +93,7 @@
 
 | You are adding… | Put it in… |
 |---|---|
-| A page or layout | `src/app/[locale]/(group)/…/page.tsx`: thin, it composes feature components |
+| A page or layout | `src/app/.../page.tsx`; add `[locale]`/groups only when selected |
 | UI used by one feature | `src/features/<feature>/components/` |
 | UI used by 2+ features | `src/components/shared/` |
 | A basic primitive (button, dialog, input) | `src/components/ui/`, via `pnpm dlx shadcn@latest add` |
@@ -111,8 +116,8 @@
 ```text
 app  ──►  features  ──►  components, hooks, lib, server, i18n, config, types
                          components ──► lib, hooks, i18n, config, types
-                         server     ──► lib, config, types
-                         lib        ──► lib, types        (no server, no React-specific state)
+                         server     ──► lib, config, types, i18n (page-navigation adapter only)
+                         lib        ──► lib, config, types        (no server, no React-specific state)
 ```
 
 | From ↓ may import → | app | features (same) | features (other) | components | hooks | server | lib | i18n | config |
@@ -121,18 +126,18 @@ app  ──►  features  ──►  components, hooks, lib, server, i18n, confi
 | **features/x** | ✗ | ✓ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **components** | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ | ✓ | ✓ |
 | **hooks** | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ | ✓ | ✓ |
-| **server** | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ |
-| **lib** | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✗ |
+| **server** | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✓ | page adapter only | ✓ |
+| **lib** | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ | ✓ |
 
 ## Rules
 
 - **ARCH-1 (MUST)** Keep `src/app/` thin: routing, params, metadata, and composing feature components. No business logic, no DB queries, no complex JSX in route files.
 - **ARCH-2 (MUST NOT)** Import one feature from another. If two features need the same thing, move it down to `components/shared`, `lib`, or `server`, or compose the two features in the page (`app/`).
-- **ARCH-3 (MUST)** Start every file in `src/server/**` and `src/features/*/server/**` with `import "server-only";`. The only exception is `actions.ts`, which starts with `"use server";`. Client Components can never import these files.
-- **ARCH-4 (MUST)** Only `server/` folders may import `@/server/db`. Components, pages and route handlers get data through feature `queries.ts`.
+- **ARCH-3 (MUST)** Start every file in `src/server/**` and `src/features/*/server/**` with `import "server-only";`. The only exception is `actions.ts`, which starts with `"use server";`. Client Components may import exported Server Actions from `"use server"` files, but no ordinary server modules.
+- **ARCH-4 (MUST)** Runtime DB access belongs only in server-only data functions, not components/routes. Erased type-only schema imports are allowed in DTO/mapping files; import restrictions must distinguish them from runtime imports.
 - **ARCH-5 (MUST)** Keep `src/lib/**` isomorphic: no Node-only APIs, no secrets, no DB. If it needs the server, it belongs in `src/server/`.
 - **ARCH-6 (MUST)** Use `proxy.ts` only for i18n routing and **optimistic** redirects (cookie presence). It is never the security boundary; the data layer is.
-- **ARCH-7 (MUST)** Every new top-level folder, or deviation from this tree, requires an ADR.
+- **ARCH-7 (MUST)** Record consequential boundary/dependency/deployment decisions as ADRs. Routine feature folders and approved existing path mappings need no ADR; this tree is a responsibility map, not a file-count checklist.
 - **ARCH-8 (SHOULD)** Create a new feature folder when a capability has its own data, UI and rules (projects, billing, members). Small cross-cutting UI belongs in `components/shared`.
 
 ## Growing beyond MVP

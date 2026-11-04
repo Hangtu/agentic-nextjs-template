@@ -1,112 +1,61 @@
 # Agent Workflow
 
-> **Read when:** always. This is how every AI agent (Claude, GPT/Codex, DeepSeek, …) and every human works in this repo. `AGENTS.md` summarizes it.
+> **Read when:** starting work and before reporting completion.
 
-## Which instruction wins
+## Start with the contract
 
-1. The user's explicit instruction for the current task.
-2. This repo's docs (`AGENTS.md` → `docs/`).
-3. Existing code patterns.
-4. Your training data.
+Read the active project-context path linked from the instruction entry point. If absent or unapproved, use [adoption](../playbooks/adopt-project.md), not an inferred bootstrap.
 
-- **1 vs 2:** follow the user, but say so in your report and propose a doc update or ADR.
-- **2 vs 3:** the docs win for new code; mention the inconsistency.
-- **Your training data may be outdated.** Installed package versions and these docs win over memory.
+This repo's contract is [kit mode](../project-context.md). For a consumer, the approved contract supplies real paths, tools, capabilities, and verification commands. Library defaults do not override preserved project choices. See [applicability](../architecture/applicability.md).
+
+User instructions and host safety constraints remain binding. Conflicts between local instructions, the approved contract, docs, and code must be surfaced, not silently resolved by whichever file the agent read last.
 
 ## The loop
 
-1. **Orient.** Open only the docs the `AGENTS.md` routing table lists for your task. Find the closest existing example and mirror it. In a new codebase, mirror [reference-feature.md](../architecture/reference-feature.md).
-2. **Clarify.** Ask when requirements are ambiguous, acceptance criteria are missing, or the task is in "Ask first". Batch your questions (≤ 5), each with a recommended default. Don't ask about things the docs already decide.
-3. **Plan, scaled to the task:**
-   - trivial: just do it;
-   - small: state the files you'll touch and the tests you'll write;
-   - feature: write `docs/specs/<feature>.md` from the [template](../templates/feature-spec.md), then wait for approval unless told to proceed.
-4. **Implement** in vertical slices (schema → data layer → actions → UI → i18n → tests), keeping the app compiling. Search before you create anything new.
-5. **Verify.**
-   - `pnpm verify` passes.
-   - The E2E tests for affected journeys pass.
-   - For UI changes, look at the running app: every locale, mobile width, dark mode, keyboard only.
+1. **Orient.** Load task-relevant docs and inspect the closest safe existing example. Distinguish evidence from assumptions. Check installed versions and version-matched docs for uncertain APIs.
+2. **Clarify.** Ask about decisions, not facts you can inspect. Batch at most five initial questions, each with a recommendation; ask a further focused round only for blockers.
+3. **Plan proportionally.**
+   - Trivial/static edits: act within the approved scope and verify the affected surface.
+   - Small behavior changes: state acceptance criteria, files, and tests.
+   - Multi-part features or risky changes: create a spec using [the template](../templates/feature-spec.md), omit irrelevant sections, and wait for approval unless the user already authorized that plan.
+4. **Implement in vertical slices.** One observable behavior, its tests, then the next. Keep the code compiling; create only needed layers. Bugs start with an executed reproduction and a failing regression test before the fix.
+5. **Verify.** Use the contract's focused checks during work and full agreed checks before completion. Run affected E2E and manual UI checks where relevant. Record pre-existing failures separately; do not weaken checks.
+6. **Review on two axes.** Does it meet standards? Does it implement the requested behavior without extra scope? Use [code review](../playbooks/code-review.md).
+7. **Report evidence and next steps.** Never claim success from inspection alone.
 
-   **Never claim something works if you didn't run it.**
-6. **Self-review** your diff with [code-review.md](../playbooks/code-review.md). Fix every blocker and major finding.
-7. **Report:**
+## Verification contexts
 
-```markdown
-**Summary:** what and why (1–3 lines)
-**Changes:** files, grouped by layer
-**Verification:** commands run + results; what was checked manually
-**Decisions & assumptions:** + docs/ADRs updated
-**Follow-ups / risks:** or "none"
-```
+- Kit: `node scripts/verify-kit.mjs` and `git diff --check`.
+- Approved new app: `pnpm verify`, build, affected E2E, manual UI review.
+- Existing app: exact approved commands and baseline; report missing tooling instead of inventing scripts.
+- UI: applicable locales, supported viewports/themes, keyboard/focus, contrast, and meaningful content states. Axe alone is not a WCAG conformance claim.
+
+A diagnosis is read-only: do not run unknown package scripts, installs, or databases just to gather a baseline. Review commands and obtain approval first. A later implementation plan may authorize its listed verification steps.
 
 ## Boundaries
 
-**Always**
-- Run `pnpm verify` before saying "done".
-- Keep changes scoped to the task; list unrelated problems in the report instead of fixing them.
-- Add tests for new logic, and a regression test for every bug fix.
-- Update the owning doc in the same change when you change a convention, command or dependency.
+**Always:** scoped changes, tests for changed behavior, protected existing work, updated owning docs, honest evidence.
 
-**Ask first**
-- Adding, removing or major-upgrading a dependency.
-- Dropping or renaming columns/tables, or rewriting existing data.
-- Changes to auth, permissions, CSP/security headers, CORS or rate limits.
-- Changes to CI/CD, env var names, `next.config.ts`, `tsconfig.json` or `eslint.config.mjs`.
-- Deleting features or files, or large refactors that weren't requested.
-- Anything that costs money or touches external systems.
-- Committing, pushing or opening PRs, unless you were asked to.
+**Ask first:** dependencies, security/auth policy, destructive data changes, CI/build/lint/TS configuration, large migrations/deletion, external/paid operations, and commits/pushes/PRs. A request to implement a plan covers its named steps, not unrelated actions.
 
-**Never**
-- Commit or print secrets or real personal data.
-- Weaken checks:
-  - `--no-verify`
-  - `@ts-ignore`
-  - `eslint-disable` without a rule name and reason
-  - `.skip` / `.only` left in tests
-  - loosened lint or type config
-  - deleting a failing test
-- Hand-edit generated files: applied migrations, `pnpm-lock.yaml`, `next-env.d.ts`, the `nextjs-agent-rules` block in `AGENTS.md`.
-- Force-push to `main`.
-- Run destructive commands against non-local databases.
-- Leave placeholders: a `TODO` without an issue, mock data or fake success in production code.
+**Never:** secrets/PII in artifacts or logs; bypasses or weakened checks; hand-edited lockfiles/applied migrations; destructive non-local DB commands; fake production success; overwriting project instructions during adoption.
 
-## Don't invent APIs
+Small verified increments do not imply permission to commit each one.
 
-1. Check the installed version in `package.json` and `node_modules/<pkg>/package.json`.
-2. Read the types or the docs **for that major version**. Next.js ships its docs in `node_modules/next/dist/docs/`; read them before writing Next.js code.
-3. Check the "Outdated patterns" table in [tech-stack.md](../architecture/tech-stack.md).
-4. Still unsure? Write the smallest code that would prove it and type-check it. Don't guess.
+## When blocked
 
-## When stuck
+After three unsuccessful attempts at the same problem, stop and state the symptom, falsifiable hypotheses, what ran, and what access/decision is needed. Do not make speculative fixes without a reproducible feedback loop.
 
-If the same error survives 3 attempts, stop. Report the exact error, your hypotheses, what you tried, and what you need.
+## Keeping knowledge useful
 
-## Keeping docs alive
+- **AGENT-1 (MUST)** Update the owning doc when a convention, command, or dependency changes.
+- **AGENT-2 (MUST)** Record consequential, difficult-to-reverse trade-offs as ADRs. Routine files/components need no ADR.
+- **AGENT-3 (MUST)** Keep specs/issues and project context aligned with approved scope and actual results.
 
-- **AGENT-1 (MUST)** A change to a convention, pattern, command or dependency updates the doc that owns it, in the same change.
-- **AGENT-2 (MUST)** Record significant decisions as ADRs in `docs/architecture/decisions/`.
-- **AGENT-3 (MUST)** Keep `docs/specs/<feature>.md` in sync with what was built, and set its status when done.
+For handoff: record the working revision, scope, approved decisions, last checks, blockers, and next concrete action in durable project artifacts. Link specs/ADRs rather than copying them. A temporary summary is transport, not the source of truth. Redact sensitive content.
 
-## Multi-agent work
+## Multiple agents and optional tools
 
-- Split work by feature or layer; one agent edits a given file at a time.
-- Reviewer agents report findings and don't edit.
+One agent edits a given file at a time. Independent review contexts can assess standards and requirements separately; reviewers report findings instead of editing unless asked.
 
-## Optional tooling (per developer, not required)
-
-| Tool | Use |
-|---|---|
-| Next.js MCP: built into `next dev` at `/_next/mcp`; connect with `npx -y next-devtools-mcp@latest` | Build/runtime errors, routes, logs, docs |
-| Playwright MCP (`@playwright/mcp`) | Click through flows, screenshots, console errors |
-| shadcn MCP (`pnpm dlx shadcn@latest mcp`) | Search and add registry components |
-| Context7 or another docs MCP | Version-specific library docs |
-
-Config file per tool:
-
-| Tool | Config file |
-|---|---|
-| Claude Code, Copilot CLI | `.mcp.json` |
-| Cursor | `.cursor/mcp.json` |
-| VS Code | `.vscode/mcp.json` |
-| Codex | `.codex/config.toml` |
-| OpenCode | `opencode.json` |
+Browser tooling, version-specific docs tools, and subagents are optional host capabilities, not requirements for reading this kit. If unavailable, describe the alternative/manual check and its limits. Never claim a slash command or MCP integration works merely because the model name is supported.

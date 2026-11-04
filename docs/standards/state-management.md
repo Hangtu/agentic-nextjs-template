@@ -1,6 +1,6 @@
 # State Management
 
-> **Read when:** deciding where a piece of data or UI state should live.
+> **Read when:** deciding where data/UI state belongs. URL libraries, theme/locale providers, and auth storage are selected capabilities, not dependencies to install for every app.
 > **Related:** [data-fetching-and-caching.md](../backend/data-fetching-and-caching.md), [forms.md](forms.md), [react-components.md](react-components.md).
 
 Most "state management" problems in Next.js disappear when server data stays on the server. **Default to no client state library.**
@@ -26,7 +26,7 @@ Ask these questions in order and stop at the first "yes".
 - **STATE-1 (MUST NOT)** Copy server data into client state (`useState(props.projects)`, global stores) "to have it on the client". Render it from props; refresh with cache invalidation after mutations.
 - **STATE-2 (MUST NOT)** Fetch initial data in `useEffect`. Fetch in Server Components.
 - **STATE-3 (MUST)** Put any state the user would expect to bookmark or share in the URL. Validate URL params like any external input (Zod or nuqs parsers). Invalid values fall back to defaults; they never crash the page.
-- **STATE-4 (MUST)** Use `nuqs` for type-safe URL state in Client Components. When the server must re-render with the new params (filtering server data), set `shallow: false`. Use `startTransition` to show pending UI.
+- **STATE-4 (MUST)** Use the approved URL-state strategy with validated parsers. Native Next navigation is sufficient for simple links/filters. When nuqs is selected and server rendering depends on changes, use `shallow: false` and appropriate transition feedback.
 - **STATE-5 (MUST)** Colocate state in the lowest common parent that needs it. Lift it only when a sibling truly needs it.
 - **STATE-6 (MUST)** Show pending states with the built-in React tools: `useActionState` (form result and pending), `useFormStatus` (submit button), `useTransition` (navigation or action pending), `useOptimistic` (instant feedback before the server confirms).
 - **STATE-7 (MUST NOT)** Store SSR-relevant preferences (theme, locale) only in `localStorage`. The server can't read it, so the page flashes. Use a cookie.
@@ -40,6 +40,7 @@ Ask these questions in order and stop at the first "yes".
 import { createLoader, parseAsInteger, parseAsStringLiteral } from "nuqs/server";
 
 export const PROJECT_SORTS = ["createdAt", "name"] as const;
+export type ProjectSort = (typeof PROJECT_SORTS)[number];
 
 export const projectSearchParams = {
   page: parseAsInteger.withDefault(1),

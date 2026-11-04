@@ -1,6 +1,7 @@
 # Server Actions (UI mutations)
 
-> **Read when:** adding or changing anything that writes data in response to a user action in our UI.
+> **Read when:** UI writes exist. This is the preferred Zod/action-result recipe, not mandatory infrastructure for static pages.
+> **Scope:** preserve an approved existing action boundary with equivalent validation/access/error guarantees. Public forms do not require auth or i18n. The authenticated DB example below requires those selected capabilities.
 > **Related:** [forms.md](../standards/forms.md), [error-handling.md](../standards/error-handling.md), [auth.md](auth.md), [data-fetching-and-caching.md](data-fetching-and-caching.md).
 
 Server Actions are **public HTTP endpoints**. Anyone can call them with any payload, whatever the UI allows. Treat every action like an API route.
@@ -16,10 +17,10 @@ Client Component ──► server/actions.ts      (transport: createAction → a
 
 ## Rules
 
-- **ACT-1 (MUST)** Every action is built with `createAction()` and exported from `features/<feature>/server/actions.ts`. The file starts with `"use server";` and exports only actions.
+- **ACT-1 (MUST)** Use the project's approved action boundary (new-app default: `createAction()` in `features/<feature>/server/actions.ts`). A `"use server"` action file exports only actions. Do not create it for a read-only/static feature.
 - **ACT-2 (MUST)** Every action declares `access: "public" | "authenticated"` explicitly. The default is not "public"; you have to choose.
 - **ACT-3 (MUST)** Validate input with the feature's Zod schema. `createAction` does this. Never read fields from raw `FormData` or trust client-sent IDs or roles.
-- **ACT-4 (MUST)** Authorize in the mutation, by re-loading the target resource and checking ownership, role or membership. "The button was hidden" is not authorization.
+- **ACT-4 (MUST)** Private mutations obtain the authenticated actor server-side and authorize ownership/role/membership, preferably in the query itself. Do not accept arbitrary actor/owner IDs as authority. Jobs/API-key consumers need an explicitly verified service-principal design; never fake a browser session.
 - **ACT-5 (MUST)** Keep actions thin: call one or a few mutation functions, invalidate cache tags (`updateTag`), and return a minimal DTO (an ID, or a small object). Business logic lives in `mutations.ts`.
 - **ACT-6 (MUST)** Return `ActionResult<T>`. Expected failures throw `AppError`, which `createAction` maps to codes. Never return raw error messages.
 - **ACT-7 (MUST NOT)** Use actions to **read** data for rendering. Reads belong in Server Components (actions run sequentially and are not cached).
@@ -71,40 +72,39 @@ import { z } from "zod";
 
 import type { ActionResult } from "@/lib/action-result";
 import { isAppError } from "@/lib/errors";
-import { getCurrentUser, type SessionUser } from "@/server/auth/session";
 import { logger } from "@/server/logger";
 
-type Access = "public" | "authenticated";
-type ActionContext<TAccess extends Access> = {
-  user: TAccess extends "authenticated" ? SessionUser : SessionUser | null;
-};
-
-type ActionDefinition<TSchema extends z.ZodType, TData, TAccess extends Access> = {
-  /** Stable name for logs and traces, e.g. "projects.create". */
+type ActionDefinition<TSchema extends z.ZodType, TData, TUser extends { id: string }> = {
   name: string;
   input: TSchema;
-  access: TAccess;
-  handler: (input: z.output<TSchema>, context: ActionContext<TAccess>) => Promise<TData>;
-};
+} & (
+  | {
+      access: "public";
+      handler: (input: z.output<TSchema>, context: { user: null }) => Promise<TData>;
+    }
+  | {
+      access: "authenticated";
+      authenticate: () => Promise<TUser | null>;
+      handler: (input: z.output<TSchema>, context: { user: TUser }) => Promise<TData>;
+    }
+);
 
-export function createAction<TSchema extends z.ZodType, TData, TAccess extends Access>(
-  definition: ActionDefinition<TSchema, TData, TAccess>,
+export function createAction<TSchema extends z.ZodType, TData, TUser extends { id: string }>(
+  definition: ActionDefinition<TSchema, TData, TUser>,
 ) {
   return async (raw: z.input<TSchema> | FormData): Promise<ActionResult<TData>> => {
     try {
-      const user = await getCurrentUser();
-      if (definition.access === "authenticated" && !user) {
-        return { ok: false, code: "unauthenticated" };
-      }
-
       const parsed = definition.input.safeParse(raw instanceof FormData ? formDataToObject(raw) : raw);
       if (!parsed.success) {
         return { ok: false, code: "validationFailed", fieldErrors: z.flattenError(parsed.error).fieldErrors };
       }
 
-      // Safe: the access check above guarantees `user` matches ActionContext<TAccess>.
-      const context = { user } as ActionContext<TAccess>;
-      return { ok: true, data: await definition.handler(parsed.data, context) };
+      if (definition.access === "authenticated") {
+        const user = await definition.authenticate();
+        if (!user) return { ok: false, code: "unauthenticated" };
+        return { ok: true, data: await definition.handler(parsed.data, { user }) };
+      }
+      return { ok: true, data: await definition.handler(parsed.data, { user: null }) };
     } catch (error) {
       unstable_rethrow(error); // let redirect()/notFound() through
       if (isAppError(error)) {
@@ -127,7 +127,9 @@ function formDataToObject(formData: FormData): Record<string, unknown> {
 }
 ```
 
-## Example
+The shared helper deliberately imports no auth module. Public actions declare `access: "public"` and need only validation/error/logging infrastructure. Authenticated actions supply the server-owned resolver; private mutations still enforce their own boundary. Translate safe codes at the UI when i18n is active; otherwise map them to coherent monolingual messages. Never render raw errors.
+
+## Example — auth, persistence, and an actual cache invalidation requirement
 
 ```ts
 // src/features/projects/server/actions.ts
@@ -136,6 +138,7 @@ function formDataToObject(formData: FormData): Record<string, unknown> {
 import { updateTag } from "next/cache";
 
 import { createAction } from "@/server/action";
+import { getCurrentUser } from "@/server/auth/session";
 
 import { archiveProjectSchema, createProjectSchema } from "../schemas";
 import { projectTags } from "./cache-tags";
@@ -145,8 +148,9 @@ export const createProjectAction = createAction({
   name: "projects.create",
   input: createProjectSchema,
   access: "authenticated",
+  authenticate: getCurrentUser,
   handler: async (input, { user }) => {
-    const project = await createProject({ ownerId: user.id, ...input });
+    const project = await createProject(input);
     updateTag(projectTags.byOwner(user.id));
     return { id: project.id };
   },
@@ -156,8 +160,9 @@ export const archiveProjectAction = createAction({
   name: "projects.archive",
   input: archiveProjectSchema, // z.object({ projectId: z.uuid() })
   access: "authenticated",
+  authenticate: getCurrentUser,
   handler: async ({ projectId }, { user }) => {
-    await archiveProject({ projectId, actorId: user.id }); // throws AppError("notFound" | "forbidden")
+    await archiveProject({ projectId }); // throws AppError("notFound" | "forbidden")
     updateTag(projectTags.byId(projectId));
     updateTag(projectTags.byOwner(user.id));
   },
@@ -172,12 +177,14 @@ import { and, eq } from "drizzle-orm";
 import { AppError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { projects } from "@/server/db/schema";
+import { requireActor } from "@/server/auth/session";
 
-export async function archiveProject({ projectId, actorId }: { projectId: string; actorId: string }) {
+export async function archiveProject({ projectId }: { projectId: string }) {
+  const user = await requireActor();
   const [updated] = await db
     .update(projects)
     .set({ status: "archived" })
-    .where(and(eq(projects.id, projectId), eq(projects.ownerId, actorId))) // authorization in the WHERE
+    .where(and(eq(projects.id, projectId), eq(projects.ownerId, user.id))) // authorization in the WHERE
     .returning({ id: projects.id });
   if (!updated) throw new AppError("notFound");
 }

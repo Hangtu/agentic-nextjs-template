@@ -1,52 +1,46 @@
 # Definition of Done
 
-> **Read when:** before saying a task is finished, and when reviewing a PR. Skip the items that don't apply, but say which ones you skipped and why.
+> **Read when:** finishing a task or reviewing a change.
+> **Scope:** the active contract and touched behavior. Mark irrelevant items not applicable with a reason; do not claim whole-project compliance from a scoped adoption.
 
-## Functionality
-- [ ] Every acceptance criterion in the spec or issue is met.
-- [ ] All states handled: loading, empty, error, success, no permission, long text, many items.
-- [ ] Works in every locale, from mobile (320px) to desktop, and in light and dark mode.
+## Intent and structure
+- [ ] Acceptance criteria are met; no unrequested migration, feature, or cleanup.
+- [ ] Responsibilities and imports follow the approved structure; only necessary files exist.
+- [ ] Consequential decisions have ADRs; routine changes do not require one.
+- [ ] Existing instructions, configuration, and user work are preserved.
 
-## Code quality
-- [ ] Follows the standards; mirrors existing patterns; no new pattern without an ADR.
-- [ ] No `any`, `@ts-ignore`, `console.log`, commented-out code, or a `TODO` without an issue.
-- [ ] No unused code, exports or dependencies (knip is clean).
-- [ ] The diff contains only what the task needs.
+## Verification
+- [ ] The contract's checks were actually run, with commands/results and blocked prerequisites reported.
+- [ ] Kit work passes `node scripts/verify-kit.mjs`; app work uses app checks, not the kit checker as a substitute.
+- [ ] New logic has behavior-focused tests. A bug fix includes an executed failing regression before the fix.
+- [ ] Changed critical journeys have appropriate E2E coverage; build results are recorded for application changes.
+- [ ] Existing failures/debt are distinguished from new regressions; no tests/thresholds were weakened.
 
-## Tests
-- [ ] Unit tests for new logic; integration tests for new queries, mutations and actions.
-- [ ] An E2E test for any new or changed critical journey, including an axe scan.
-- [ ] Bug fixes include a regression test that failed before the fix.
-- [ ] `pnpm verify` passes locally, and CI is green.
+## UI and accessibility — when UI changes
+- [ ] Relevant loading/empty/error/success/permission states work.
+- [ ] Semantics, names/labels, keyboard, visible focus, contrast, and responsive layout were reviewed.
+- [ ] Axe scans find no unresolved violations on affected pages; manual review is recorded separately.
+- [ ] Selected languages/themes/viewports work; do not invent unused dark-mode or locale requirements.
 
-## Security & privacy (see [security.md](../quality/security.md))
-- [ ] Every action, route handler and data-layer query checks authentication **and** authorization on the server.
-- [ ] All external input is validated with Zod.
-- [ ] No secrets or personal data in client code, logs, URLs or error messages.
-- [ ] Abuse-prone endpoints are rate-limited.
+## Security and privacy — for the surfaces that exist
+- [ ] External inputs are validated at their boundaries.
+- [ ] Private data operations authenticate and authorize on the server, including other-user/tenant tests.
+- [ ] Public access is deliberate; abuse-prone operations have appropriate protections.
+- [ ] No secrets/PII leak to clients, logs, URLs, caches, analytics, or error messages.
 
-## Accessibility (see [accessibility.md](../quality/accessibility.md))
-- [ ] Keyboard-operable with visible focus; labels and names present; contrast passes; axe shows 0 violations.
+## Public discoverability — indexable content
+- [ ] Appropriate title, description, canonical, social metadata, sitemap, and truthful structured data where relevant.
+- [ ] Hreflang/localized metadata only when i18n is active; no fabricated schemas/reviews.
+- [ ] Private areas have an appropriate noindex policy. Indexing controls are not access controls.
 
-## i18n (see [i18n.md](../discoverability/i18n.md))
-- [ ] No hardcoded user-facing strings; keys exist in **all** locales (`pnpm i18n:check`).
-- [ ] Dates, numbers and currency go through the next-intl formatter.
+## Conditional capabilities
+- [ ] With i18n: strings/formatters/navigation follow the selected locale strategy and keys exist in every locale.
+- [ ] With persistence: queries are scoped/limited/indexed appropriately; generated migrations are reviewed and compatible.
+- [ ] With caching: scope/lifetime/invalidation are explicit; no private data in shared caches.
+- [ ] With analytics/external providers: approved purpose/privacy and no real external calls in deterministic tests.
 
-## SEO & discoverability (public pages only; see [seo.md](../discoverability/seo.md))
-- [ ] `generateMetadata` provides title, description, canonical, hreflang alternates and Open Graph.
-- [ ] The page is in the sitemap; structured data is valid; private pages are `noindex`.
-
-## Performance (see [performance.md](../quality/performance.md))
-- [ ] No new client JavaScript without a reason; heavy client libraries are lazy-loaded.
-- [ ] Images use `next/image` with `sizes`; no layout shift; no request waterfalls.
-- [ ] New queries are backed by indexes.
-
-## Data
-- [ ] The migration is generated, reviewed and committed with the schema change, and stays backward compatible (expand → migrate → contract).
-
-## Observability
-- [ ] Unexpected errors are logged with context; key analytics events from the spec are emitted.
-
-## Docs
-- [ ] The spec status is updated; an ADR exists for any decision; docs reflect any changed convention; `.env.example` lists new env vars.
-- [ ] The PR template is filled in, with screenshots or a recording for UI changes.
+## Performance and continuity
+- [ ] No unnecessary client JS/providers; appropriate images/fonts; no avoidable waterfalls.
+- [ ] Performance changes have comparable before/after evidence; field metrics are not inferred from a local build.
+- [ ] Specs, changed conventions, env-variable names, contract decisions, and next steps are current.
+- [ ] The final report states exactly what was verified, what was not, and remaining risks.

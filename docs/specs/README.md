@@ -1,6 +1,6 @@
 # Feature Specs
 
-One spec per feature: `docs/specs/<feature>.md`, named after its folder in `src/features/<feature>/`. Create specs from [the template](../templates/feature-spec.md).
+Specs for multi-part features and risky changes, at the contract's actual spec path. Small/static tasks can use a short conversational plan and acceptance criteria. Create appropriately scoped specs from [the template](../templates/feature-spec.md); a spec need not correspond to an application feature folder.
 
 ## Lifecycle
 
@@ -8,7 +8,7 @@ One spec per feature: `docs/specs/<feature>.md`, named after its folder in `src/
 
 ## Rules
 
-- Write the spec **before** the code for any feature-sized task ([add-feature.md](../playbooks/add-feature.md)).
+- Write a proportionate spec **before** implementation when the task needs one ([add-feature.md](../playbooks/add-feature.md)). User approval of a specific plan need not be requested a second time.
 - Keep it current: when behavior or scope changes, update the spec in the same PR (AGENT-3).
 - A spec describes **what and why**, plus the key technical decisions (data model, access rules). The code is the source of truth for the details.
 
@@ -16,4 +16,4 @@ One spec per feature: `docs/specs/<feature>.md`, named after its folder in `src/
 
 | Spec | Status |
 |---|---|
-| _none yet_ | |
+| [Adaptive adoption MVP](adaptive-adoption-mvp.md) | Implemented (kit); app scenarios pending |

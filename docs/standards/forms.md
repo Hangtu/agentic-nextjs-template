@@ -1,17 +1,18 @@
 # Forms and Validation
 
-> **Read when:** building any form, input, or user-submitted data flow.
+> **Read when:** forms/submissions exist.
+> **Scope:** native forms for simple flows; React Hook Form/Base UI for selected complex interactions. Translation examples below require i18n; otherwise map safe codes to approved monolingual copy. Preserve equivalent existing form/action tooling.
 > **Related:** [server-actions.md](../backend/server-actions.md), [accessibility.md](../quality/accessibility.md), [i18n.md](../discoverability/i18n.md), [error-handling.md](error-handling.md).
 
-## The one pattern
+## Choose the smallest suitable pattern
 
 | Form type | Pattern |
 |---|---|
-| **Interactive form** (any field-level validation or error display: create/edit entities, settings, sign-up) | React Hook Form + `zodResolver(schema)` + shadcn `Field` components → calls a Server Action with a typed object inside `startTransition` |
+| **Complex interactive form** (dependent fields, dynamic arrays, rich validation/state) | React Hook Form + `zodResolver(schema)` + shadcn `Field` components → calls a Server Action with a typed object inside `startTransition` |
 | **Trivial form** (one input or one button: newsletter, delete confirmation, sign out, toggle) | Native `<form action={…}>` + `useActionState` → Server Action receives `FormData` |
-| **Search / filter inputs** | No submit at all: update URL state with `nuqs`; see [state-management.md](state-management.md) |
+| **Search / filter inputs** | Use native URL navigation/parsers, or `nuqs` when the URL-state capability is selected; see [state-management.md](state-management.md) |
 
-Every Server Action is built with `createAction()` and returns an `ActionResult`; see [server-actions.md](../backend/server-actions.md).
+New-app Server Actions use `createAction()` and `ActionResult`; preserve an approved equivalent boundary. Public submissions need no auth module. See [server-actions.md](../backend/server-actions.md).
 
 ## Rules
 
@@ -22,12 +23,14 @@ Every Server Action is built with `createAction()` and returns an `ActionResult`
 - **FORM-5 (MUST)** Use the right `type`, `inputMode` and `autoComplete` for each input (`type="email" autoComplete="email"`, `autoComplete="new-password"`, `inputMode="numeric"`). Required for WCAG 1.3.5 and for password managers.
 - **FORM-6 (MUST)** Disable the submit button and show progress while pending (`isPending`); prevent double submits. Mutations must also be safe if submitted twice (idempotent or guarded by unique constraints).
 - **FORM-7 (MUST)** Keep user input on failure. Never clear a form because the server returned an error.
-- **FORM-8 (MUST)** Never show raw server or Zod messages to users. Validation messages are **i18n keys** (FORM-10) and server errors are **error codes**; both are translated in the UI.
+- **FORM-8 (MUST)** Never show raw server/untrusted validation errors. Map controlled validation/server codes to friendly copy. With i18n, translate keys; without it, use an explicit monolingual mapping.
 - **FORM-9 (MUST NOT)** Block paste in any field, or use cognitive puzzles in auth flows (WCAG 3.3.8). Use bot protection that is invisible to users (see [security.md](../quality/security.md)).
 
-## Validation messages are i18n keys
+## Validation codes and optional translations
 
-- **FORM-10 (MUST)** Every user-facing constraint in a schema sets `error` to a key from the `Validation` namespace in `messages/<locale>.json`. Don't rely on Zod's built-in English messages.
+- **FORM-10 (MUST)** Give user-facing constraints controlled error codes and map them consistently. With i18n, these are keys in the selected `Validation` catalogs. Without i18n, use approved monolingual messages; do not create catalogs/providers solely for a simple form.
+
+The examples below demonstrate the selected i18n variant:
 
 ```ts
 // src/features/projects/schemas.ts
@@ -140,7 +143,7 @@ export function CreateProjectForm() {
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import type { ActionResult } from "@/lib/action-result";
@@ -150,15 +153,20 @@ import { subscribeToNewsletterAction } from "../server/actions";
 export function NewsletterForm() {
   const t = useTranslations("Newsletter");
   const tErrors = useTranslations("Errors");
+  const [email, setEmail] = useState("");
   const [state, formAction, isPending] = useActionState(
-    (_previous: ActionResult | null, formData: FormData) => subscribeToNewsletterAction(formData),
+    async (_previous: ActionResult<void> | null, formData: FormData) => {
+      const result = await subscribeToNewsletterAction(formData);
+      if (result.ok) setEmail("");
+      return result;
+    },
     null,
   );
 
   return (
     <form action={formAction} className="flex gap-2">
       <label htmlFor="newsletter-email" className="sr-only">{t("emailLabel")}</label>
-      <input id="newsletter-email" name="email" type="email" autoComplete="email" required />
+      <input id="newsletter-email" name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
       <Button type="submit" disabled={isPending}>{t("subscribe")}</Button>
       <p aria-live="polite" className="text-sm">
         {state?.ok ? t("success") : null}
@@ -169,7 +177,7 @@ export function NewsletterForm() {
 }
 ```
 
-> React resets uncontrolled form fields after a form action runs. That is fine for trivial forms. If users must keep their input on error, use the interactive pattern.
+> React can reset uncontrolled fields after an action. This simple example controls the email value and clears it only after success, preserving it on errors without requiring React Hook Form.
 
 ## FormData parsing
 

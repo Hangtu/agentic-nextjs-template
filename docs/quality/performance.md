@@ -1,7 +1,7 @@
 # Performance
 
 > **Read when:** building pages, adding client-side code or dependencies, adding images/fonts/third-party scripts, or writing queries.
-> **Targets (p75, real users, mobile):** LCP ≤ 2.5s · INP ≤ 200ms · CLS ≤ 0.1. Measured with Vercel Speed Insights and Search Console.
+> **Targets (p75, real users, mobile):** LCP ≤ 2.5s · INP ≤ 200ms · CLS ≤ 0.1. Use the approved RUM/field source; Vercel tooling is optional. Local lab scores are not field evidence.
 
 ## Budgets
 
@@ -16,7 +16,7 @@
 ## Rules
 
 - **PERF-1 (MUST)** Server Components by default; `"use client"` only on interactive leaves ([react-components.md](../standards/react-components.md)). Client JS is the biggest cost.
-- **PERF-2 (MUST)** Cache shared data with `"use cache"`, and keep the static shell large: request-dependent work goes in small `<Suspense>` holes ([data-fetching-and-caching.md](../backend/data-fetching-and-caching.md)).
+- **PERF-2 (MUST)** Choose rendering/cache scope deliberately. Literal static content needs no data cache. When shared caching/Cache Components are enabled, follow lifetime/invalidation and request-dependent Suspense rules ([data-fetching-and-caching.md](../backend/data-fetching-and-caching.md)).
 - **PERF-3 (MUST)** Use `next/image` for every image, with explicit `width`/`height` (or `fill` + a sized parent) and a correct `sizes`. Add `preload` (or `loading="eager"` + `fetchPriority="high"`) **only** to the LCP image. Never use `priority`; it is deprecated.
 - **PERF-4 (MUST)** Load fonts with `next/font`: variable fonts, `display: "swap"`, only the subsets you need. No `<link>` to Google Fonts.
 - **PERF-5 (MUST)** Prevent layout shift:
@@ -33,6 +33,8 @@
 - **PERF-13 (MUST)** Big list pages paginate on the server; never send thousands of rows to the client to filter there.
 
 ## Checking
+
+Measure a baseline before changing performance-sensitive code; remeasure under comparable conditions and retain only justified changes. Use the installed Next version's supported analyzer/config, not an assumed CLI flag. Record actual commands and deviations in the contract.
 
 1. Before a PR that adds dependencies or client components, run `pnpm analyze` and compare the route sizes.
 2. For new public pages, run Lighthouse (mobile) on the preview deployment: Performance ≥ 90, SEO = 100, Accessibility = 100, Best Practices ≥ 95.

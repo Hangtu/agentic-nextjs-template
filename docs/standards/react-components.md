@@ -1,6 +1,7 @@
 # React Components
 
 > **Read when:** creating or changing any component, page, or layout.
+> **Scope:** App Router UI under the approved contract. Translation examples require i18n; Base UI examples require that primitive choice. Monolingual copy/navigation are valid without i18n.
 > **Related:** [styling.md](styling.md), [state-management.md](state-management.md), [forms.md](forms.md), [accessibility.md](../quality/accessibility.md), [data-fetching-and-caching.md](../backend/data-fetching-and-caching.md).
 
 ## Server vs Client Components
@@ -19,7 +20,7 @@ Components are **Server Components by default**. They run only on the server, ca
   </CollapsiblePanel>
   ```
 
-- **RC-5 (MUST)** Code under `src/server/**` and `src/features/*/server/**` is server-only (`import "server-only"`). Client Components must never import it. Use a Server Action or pass data as props.
+- **RC-5 (MUST)** Code under `src/server/**` and `src/features/*/server/**` is server-only (`import "server-only"`). Client Components must never import ordinary server modules. They may import explicitly exported Server Actions from `"use server"` files; otherwise pass data as props.
 - **RC-6 (SHOULD)** To stream slow data into a Client Component, start the query in the Server Component and pass the **promise**. Unwrap it with `use()` inside `<Suspense>`:
 
   ```tsx
@@ -74,8 +75,8 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 - **RC-13 (SHOULD)** Primitives that wrap a native element extend its props: `type ButtonProps = React.ComponentProps<"button"> & {...}` and spread the rest onto the element.
 - **RC-14 (MUST)** In React 19, `ref` is a normal prop. Don't use `forwardRef` in new code.
 - **RC-15 (MUST NOT)** Define components inside other components (they remount on every render). Define them at module level.
-- **RC-16 (MUST NOT)** Hardcode user-facing text. Use `useTranslations` / `getTranslations`; see [i18n.md](../discoverability/i18n.md).
-- **RC-17 (MUST)** For internal links and navigation, use `Link`, `redirect`, `useRouter` and `usePathname` from `@/i18n/navigation`, which are locale-aware. Never import them from `next/link` or `next/navigation`; ESLint blocks it.
+- **RC-16 (MUST)** When i18n is active, put user-facing text in the selected catalogs and use their translation API; see [i18n.md](../discoverability/i18n.md). Otherwise coherent monolingual copy is valid.
+- **RC-17 (MUST)** Use the approved navigation strategy: `@/i18n/navigation` with next-intl routing, normal `next/link` and `next/navigation` without i18n, or the preserved equivalent. Apply lint restrictions only within that strategy.
 
 ## Props design
 
@@ -86,7 +87,7 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
 
 ## Hooks, effects and the React Compiler
 
-The React Compiler is enabled. It memoizes automatically.
+When the approved configuration enables React Compiler, it memoizes automatically. Preserve existing compiler settings until a change is approved; do not add manual memoization without a measured need.
 
 - **RC-30 (MUST NOT)** Add `useMemo`, `useCallback` or `React.memo` by default. Add them only for a measured problem, with a comment explaining the measurement.
 - **RC-31 (MUST)** Follow the Rules of React (lint enforced): hooks at top level only; no mutation of props, state or values during render; render must be pure.
@@ -122,7 +123,7 @@ Before adding `"use client"`, confirm:
 
 1. It needs interactivity (state, effects, handlers, browser APIs). If not, keep it a Server Component.
 2. It is the smallest possible leaf: interactive button or form, not the whole card or page.
-3. It imports nothing from `server/` folders and no secrets or env vars except `NEXT_PUBLIC_*`.
+3. It imports no ordinary `server/` modules or secrets. Explicit Server Action imports are allowed; only approved `NEXT_PUBLIC_*` env values may reach the client.
 4. Heavy client-only libraries (charts, editors, maps) are loaded with `next/dynamic` when not needed for the first paint.
 
 ## Outdated patterns: never use
@@ -130,7 +131,7 @@ Before adding `"use client"`, confirm:
 | Don't | Use instead |
 |---|---|
 | `pages/` directory, `getServerSideProps`, `getStaticProps` | App Router, Server Components |
-| `next/router` | `@/i18n/navigation` (wraps `next/navigation`) |
+| `next/router` in new App Router code | `next/navigation`, or the selected locale-aware adapter |
 | `useEffect` + `fetch` for initial data | Server Components + data layer |
 | `forwardRef` | `ref` as a prop (React 19) |
 | `React.FC`, `PropTypes`, `defaultProps` | Typed props + default values in destructuring |

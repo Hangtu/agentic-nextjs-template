@@ -1,78 +1,52 @@
 # Architecture Overview
 
-> **Read when:** starting work on the project, or making any change that crosses layers.
+> **Read when:** starting work or changing multiple layers. Start with the approved project contract and [applicability](applicability.md).
 
-## Shape of the system
+## One foundation, selected capabilities
 
-One Next.js application (a modular monolith) on Vercel, backed by one PostgreSQL database.
+The preferred new-project shape is one Next.js App Router application with server-first components and feature-oriented responsibilities. It can begin as static content without a database, auth, proxy, or locale segment.
 
 ```text
-Browser ──► Vercel CDN ──► proxy.ts (locale routing, optimistic auth redirect)
-                              │
-                              ▼
-                      Next.js App Router
-     ┌──────────── src/app (routes: thin) ────────────┐
-     │  Server Components  │  Server Actions  │  Route Handlers (/api)
-     └──────────┬──────────┴────────┬─────────┴───────┬──────────┘
-                ▼                   ▼                 ▼
-        features/*/server: queries.ts (reads) · mutations.ts (writes)
-           ← authentication + authorization happen HERE (data access layer)
-                │
-                ▼
-        src/server: db (Drizzle) · auth (Better Auth) · logger · adapters
-                │
-                ▼
-        PostgreSQL          Third parties (email, payments, storage) via adapters
+Browser → Next.js routes/layouts
+               ↓
+      feature/UI composition
+               ↓ when needed
+ server-only data/business functions
+               ↓ when selected
+ persistence, identity, external adapters
 ```
 
-## Key decisions
+An existing application's approved paths/tools may differ. Preserve valid boundaries and improve a selected area incrementally; do not enforce the tree through a wholesale move.
 
-| Decision | Summary | ADR |
+## Request paths
+
+- **Static/public page:** server-rendered content with appropriate metadata, sitemap coverage, and accessible UI. No shared data cache is necessary for literal static content.
+- **Private data:** a server-only operation obtains the authenticated actor and scopes access; transport/layout/proxy checks are not authorization.
+- **UI write:** validate at the action boundary, enforce access in the mutation, return safe errors/DTOs, invalidate only caches that exist.
+- **External HTTP:** explicit authentication/signature and validation at the boundary, shared business/data functions, consistent HTTP errors.
+- **Languages:** default Next navigation for one language; next-intl routing/catalogs when selected.
+
+Do not create a layer that merely passes through hypothetical future work.
+
+## Default decisions and scope
+
+[ADR 0009](decisions/0009-adaptive-adoption.md) governs applicability of the earlier decisions.
+
+| Area | Preference | Scope |
 |---|---|---|
-| App Router + Server Components + Cache Components | Server-first rendering; explicit `"use cache"` caching; streaming with Suspense | [0001](decisions/0001-nextjs-app-router-cache-components.md) |
-| Feature-based structure | Vertical slices in `src/features/*`; one-way imports | [0002](decisions/0002-feature-based-structure.md) |
-| Postgres + Drizzle | SQL-first typed schema, generated migrations | [0003](decisions/0003-postgres-drizzle.md) |
-| Better Auth | Self-hosted sessions in our DB; plugins for orgs/2FA | [0004](decisions/0004-better-auth.md) |
-| Tailwind + shadcn/ui on Base UI | Tokens in CSS; owned accessible components | [0005](decisions/0005-tailwind-shadcn-base-ui.md) |
-| next-intl with locale-prefixed routes | `as-needed` prefix, hreflang, typed messages | [0006](decisions/0006-next-intl-routing.md) |
-| Server Actions for UI mutations, Route Handlers for external APIs | One mutation path per consumer | [0007](decisions/0007-server-actions-and-route-handlers.md) |
-| AGENTS.md + docs/ as the agent contract | One tool-agnostic source of truth | [0008](decisions/0008-agents-md.md) |
+| Framework | App Router, Server Components; explicit Cache Components when enabled | New Next apps; preserve supported existing rendering until migration is approved |
+| Structure | Feature-oriented, one-way imports | Meaningful capabilities, not every visual fragment |
+| Data | PostgreSQL + Drizzle | Persistence selected |
+| Identity | Better Auth | Auth selected; confirm provider/storage requirements |
+| UI | Tailwind + Base UI shadcn primitives | Add used primitives only; preserve approved existing UI |
+| Languages | next-intl | i18n selected |
+| Writes / HTTP | Consistent actions / route-handler boundaries | Actual mutations or external consumers |
+| Knowledge | Project contract + task-routed reference library | Every adoption |
 
-## Request lifecycles
+See [tech stack](tech-stack.md), [structure](project-structure.md), and [reference feature](reference-feature.md). The latter deliberately shows a fuller authenticated/localized case.
 
-**Page view (signed in):**
-1. `proxy.ts` resolves the locale. If the session cookie is missing on an `(app)` route, it redirects to sign-in (optimistic check only).
-2. The static shell (layout, nav) is served instantly; it was prerendered thanks to Cache Components.
-3. Dynamic parts render inside `<Suspense>`. They call `features/x/server/queries.ts`, which runs `requireUser()` (the real check) and queries Postgres through Drizzle, returning DTOs.
-4. HTML streams to the browser; only Client Components hydrate.
+## Quality baseline
 
-**Mutation from the UI:**
-1. A Client Component calls a Server Action from `features/x/server/actions.ts`.
-2. `createAction` authenticates, validates with the Zod schema, calls `mutations.ts` (which authorizes and writes), maps errors to `ActionResult`, and logs unexpected failures.
-3. The action calls `updateTag(...)` for affected cache tags. The UI updates with fresh server data.
+UI targets WCAG 2.2 AA and responsive behavior; public pages target good Core Web Vitals and appropriate discoverability. Data operations validate inputs and enforce explicit access. Logs/errors/caches do not leak secrets or personal data.
 
-**External API call / webhook:**
-1. `src/app/api/v1/**/route.ts`, wrapped with `withApiHandler`, authenticates (session, API key, or webhook signature), validates, and calls the same `mutations.ts` / `queries.ts`.
-
-## Rendering and caching strategy
-
-| Content | Strategy |
-|---|---|
-| Marketing pages, blog, docs, pricing | Static: `"use cache"` + `cacheLife("days" or "max")` + `cacheTag`; invalidated on publish |
-| Shared reference data (plans, categories) | `"use cache"` + `cacheTag`; invalidated by the mutation |
-| Per-user data (dashboard, settings) | Dynamic, streamed inside `<Suspense>`; never cached across users |
-| Real-time-ish data | Dynamic; refresh with `router.refresh()`/`refresh()` or polling only if required |
-
-Details: [data-fetching-and-caching.md](../backend/data-fetching-and-caching.md).
-
-## Non-functional requirements (MVP baseline)
-
-| Area | Target |
-|---|---|
-| Performance | Core Web Vitals "good" at p75: LCP ≤ 2.5s, INP ≤ 200ms, CLS ≤ 0.1 |
-| Accessibility | WCAG 2.2 AA |
-| SEO | Every public page indexable, localized, with metadata, sitemap, structured data |
-| Security | OWASP Top 10 controls; auth checked in the data layer; patched dependencies |
-| Privacy | No PII in logs; consent before non-essential tracking; account export/delete |
-| Availability | Vercel + managed Postgres with point-in-time recovery; health endpoint |
-| Observability | Errors tracked with release + context; structured logs; Web Vitals |
+These are requirements to verify on touched behavior, not claims that documentation adoption has made an entire existing app compliant. Automated checks, manual accessibility, and production measurements are separate evidence.

@@ -1,6 +1,6 @@
 # Product Brief
 
-> **Agents:** read this for product context before building features. If sections still say `FILL`, ask the user for the parts you need (or propose a draft) before making product decisions.
+> **Agents:** this is a consumer-product template, not a bootstrap trigger in kit mode. Read the target's canonical brief for product work. If sections still say `FILL`, ask the user for the parts you need (or propose a draft) before making product decisions.
 
 ## Identity
 - **Name:** FILL
@@ -27,7 +27,7 @@
 - FILL (free / freemium / subscription tiers / usage-based)
 
 ## Markets & languages
-- **Locales:** `en` (default), `es`: FILL to confirm
+- **Primary language:** FILL; additional locales only when required (i18n is optional)
 - **Primary markets / data residency:** FILL
 
 ## Brand & voice

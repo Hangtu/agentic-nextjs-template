@@ -7,7 +7,7 @@ A bug report: ideally the [bug template](../templates/bug-report.md) with steps,
 ## Steps
 
 1. **Reproduce** locally (or with the exact failing input). Write down the minimal reproduction.
-2. **Write a failing test first,** at the lowest layer that shows the bug: unit > integration > E2E.
+2. **Build an executed failing feedback loop first.** Prefer a regression test at a public boundary that reproduces the actual bug, not necessarily the smallest isolated unit. Minimize the case; state hypotheses and change one variable at a time. If reproduction is blocked, report that before speculative fixes.
 3. **Find the root cause**, not the symptom. Ask "why" until you reach the actual defect. Check:
    - recent changes (`git log -p` on the involved files);
    - logs and error tracking;
@@ -18,7 +18,7 @@ A bug report: ideally the [bug template](../templates/bug-report.md) with steps,
 
 ## Verify
 
-`pnpm verify`; the reproduction steps now behave correctly; for UI bugs, check every locale and both themes when relevant.
+Run the contract's checks and original reproduction, now passing. Kit: `node scripts/verify-kit.mjs`. For UI, review selected locales/themes and manual accessibility. Redact captured output and remove temporary debugging instrumentation.
 
 ## Report
 

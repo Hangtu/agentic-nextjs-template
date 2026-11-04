@@ -1,7 +1,8 @@
 # Testing
 
 > **Read when:** writing any code (tests are part of the change), fixing a bug, or touching test config.
-> **Tools:** Vitest (unit + integration + component), Testing Library, PGlite (in-process Postgres), MSW (HTTP mocks), Playwright + axe (E2E + accessibility).
+> **Tools:** preferred app tools are Vitest/Testing Library, PGlite when DB tests exist, MSW when HTTP mocks exist, and Playwright + axe for browser journeys. Preserve approved equivalents. Kit work uses [kit validation](kit-validation.md), not app packages.
+> **Scope:** test behavior at agreed public boundaries in small slices. Only selected capabilities need their associated setup; no empty suites or fixed test-type quotas.
 
 ## What to test where
 
@@ -25,7 +26,7 @@
 - **TEST-6 (MUST)** Mock only at system boundaries: HTTP (MSW), time (`vi.useFakeTimers` / `vi.setSystemTime`), randomness, the session helper. Never mock the module under test or our own data layer in integration tests.
 - **TEST-7 (MUST)** Build test data with factory functions (`buildProject({ name: "x" })`) in `src/test/factories/`, with sensible defaults. Never use production data.
 - **TEST-8 (MUST)** Every test is independent and deterministic: no reliance on order, real network, the current date, or shared mutable state. A flaky test is a bug; fix it or delete it with an issue, and never retry it into passing.
-- **TEST-9 (MUST)** E2E tests cover the critical journeys: sign up/in, the core create/edit flow, any payment flow, locale switching, and one public SEO page. Each E2E spec runs an axe scan on every page it visits and expects **zero** violations.
+- **TEST-9 (MUST)** E2E covers actual critical journeys. Auth, payment, locale-switching, and public SEO cases apply only when those capabilities exist. Scan visited UI pages with axe and resolve violations; manual keyboard/focus/contrast review remains separate.
 - **TEST-10 (MUST)** Test names describe behavior: `it("returns notFound when the project belongs to another user")`. Structure: Arrange → Act → Assert.
 - **TEST-11 (MUST NOT)** Commit `.only` or `.skip`, or lower coverage thresholds to pass CI.
 - **TEST-12 (SHOULD)** Coverage is a signal, not a goal: ≥ 80% lines on `src/features/*/server/**` and `src/lib/**`. UI coverage is driven by E2E journeys.
@@ -48,9 +49,12 @@ describe("createProjectSchema", () => {
 
 ```ts
 // src/features/projects/server/mutations.test.ts
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { requireActor } from "@/server/auth/session";
 import { createTestUser, resetDatabase } from "@/test/db";
 import { archiveProject, createProject } from "./mutations";
+
+vi.mock("@/server/auth/session", () => ({ requireActor: vi.fn() }));
 
 describe("archiveProject", () => {
   beforeEach(resetDatabase);
@@ -58,9 +62,12 @@ describe("archiveProject", () => {
   it("rejects archiving another user's project with notFound", async () => {
     const owner = await createTestUser();
     const stranger = await createTestUser();
-    const project = await createProject({ ownerId: owner.id, name: "Mine" });
+    // The test setup mocks only the session boundary, not the data layer.
+    vi.mocked(requireActor).mockResolvedValue(owner);
+    const project = await createProject({ name: "Mine" });
+    vi.mocked(requireActor).mockResolvedValue(stranger);
 
-    await expect(archiveProject({ projectId: project.id, actorId: stranger.id }))
+    await expect(archiveProject({ projectId: project.id }))
       .rejects.toMatchObject({ code: "notFound" });
   });
 });
@@ -93,9 +100,9 @@ test("signed-in user creates a project", async ({ page }) => {
 | `pnpm test:e2e` | Playwright against a production build (`pnpm build && pnpm start`, managed by Playwright's `webServer`) |
 | `pnpm test:e2e --ui` | Playwright UI mode for debugging |
 
-E2E auth: a Playwright **setup project** signs in once and saves `storageState` (`e2e/.auth/user.json`, gitignored). Specs reuse it.
+When auth is selected, a Playwright **setup project** signs in once and saves `storageState` (`e2e/.auth/user.json`, gitignored). Specs reuse it.
 
-Notes for the verified versions:
+Version-sensitive notes (verify with installed tools; these are not bootstrap evidence):
 - axe has no `wcag22a` tag. `wcag22aa` covers the WCAG 2.2 AA rules axe can check automatically (e.g., target size).
 - Component tests run in jsdom, matching the Next.js testing guide. Vitest's Browser Mode (`@vitest/browser-playwright`, `*.browser.test.tsx` in a separate `test.projects` entry) can be adopted with an ADR for components that need real browser layout.
 - Async Server Components can't be rendered by Testing Library; cover them with E2E tests.

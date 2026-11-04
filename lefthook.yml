@@ -1,5 +1,6 @@
-# Git hooks: enforced for every contributor and every AI agent that commits.
-# Installed by `pnpm exec lefthook install` (bootstrap step 12). Never bypass with --no-verify (see AGENTS.md).
+# Optional application-hook recipe, not installed in this docs-only kit.
+# Merge only after approval; retain only configured checks (i18n/test may be absent).
+# Never overwrite target hooks or use --no-verify to hide failures.
 
 pre-commit:
   parallel: true

@@ -1,6 +1,6 @@
 # Playbook: Add a UI Component
 
-> **Use when:** you need a UI element that doesn't exist yet.
+> **Use when:** you need a UI element that doesn't exist yet. Read the approved component/design/navigation choices first; Base UI is the new-work preference, not a migration requirement.
 
 ## Decide where it comes from (in order)
 
@@ -30,12 +30,12 @@
    - keyboard support;
    - visible focus;
    - 24×24 target size (A11Y-*).
-6. Text comes from props or translations, never hardcoded (RC-16).
+6. With i18n, text comes from catalogs/translated props. Otherwise coherent monolingual copy is valid (RC-16); shared primitives take labels/content through props.
 7. Test interactive behavior with Testing Library role queries (TEST-3).
 
 ## Verify
 
-`pnpm verify`; render it in light/dark mode, at mobile width, and with the keyboard; axe has no violations where it's used.
+Run the contract's checks; render in selected themes/locales/viewports with keyboard/focus/contrast review and an axe scan. Do not add a theme/i18n provider only to satisfy this example.
 
 ## Done when
 

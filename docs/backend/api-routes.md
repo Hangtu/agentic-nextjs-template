@@ -1,7 +1,8 @@
 # API Route Handlers
 
 > **Read when:** exposing HTTP endpoints for external clients, mobile apps, webhooks, cron jobs, or files that aren't pages.
-> **Not for:** our own UI's reads (use Server Components) or mutations (use [Server Actions](server-actions.md)).
+> **Not for:** creating unused HTTP infrastructure on a static page. Prefer Server Components for initial UI reads and [Server Actions](server-actions.md) for ordinary UI writes.
+> **Scope:** selected external/API surfaces or generated non-HTML responses. Preserve an equivalent approved handler boundary. The projects example below uses session auth and persistence, not API-key/service-principal authentication.
 
 ## When to use a Route Handler
 
@@ -31,7 +32,7 @@
   - camelCase JSON.
 - **API-6 (MUST)** Version public APIs in the path (`/api/v1`). Breaking changes go to `/v2`; old versions get a `Deprecation` header and a sunset date.
 - **API-7 (MUST)** Return errors as RFC 9457 Problem Details (`application/problem+json`): `{ type, title, status, detail?, instance?, code, errors? }`. Never include stack traces or internal messages.
-- **API-8 (MUST)** Paginate every list. Use cursor pagination, `{ data: [...], nextCursor: string | null }`, with `limit` capped (default 20, max 100).
+- **API-8 (MUST)** Bound growing lists. Prefer stable cursor pagination for large feeds; a documented bounded page-based contract is valid for small lists. Return data plus explicit pagination information and cap page size (default 20, max 100). Match the data function's actual input/output contract.
 - **API-9 (MUST)** Rate-limit public endpoints, per API key or per IP; return `429` with `Retry-After`.
 - **API-10 (MUST)** Webhooks:
   - verify the signature against the **raw** body (`await request.text()`) before parsing;
@@ -57,11 +58,13 @@ const STATUS_BY_CODE: Record<ErrorCode, number> = {
   conflict: 409, rateLimited: 429, internalError: 500,
 };
 
-export function problem(code: ErrorCode, init?: { detail?: string; errors?: unknown; headers?: HeadersInit }) {
-  const status = STATUS_BY_CODE[code];
+export function problem(code: ErrorCode, init?: { status?: 400; detail?: string; errors?: unknown; headers?: HeadersInit }) {
+  const status = init?.status ?? STATUS_BY_CODE[code];
+  const headers = new Headers(init?.headers);
+  headers.set("Content-Type", "application/problem+json");
   return NextResponse.json(
-    { type: `https://errors.example.com/${code}`, title: code, status, code, detail: init?.detail, errors: init?.errors },
-    { status, headers: { "Content-Type": "application/problem+json", ...init?.headers } },
+    { type: "about:blank", title: code, status, code, detail: init?.detail, errors: init?.errors },
+    { status, headers },
   );
 }
 
@@ -70,18 +73,25 @@ export function withApiHandler<TContext>(
   handler: (request: Request, context: TContext) => Promise<Response>,
 ) {
   return async (request: Request, context: TContext): Promise<Response> => {
+    const requestId = crypto.randomUUID();
+    let response: Response;
     try {
-      return await handler(request, context);
+      response = await handler(request, context);
     } catch (error) {
-      if (isAppError(error)) return problem(error.code);
-      logger.error("api_handler_failed", { route: name, error });
-      return problem("internalError");
+      if (isAppError(error)) response = problem(error.code);
+      else {
+        logger.error("api_handler_failed", { route: name, requestId, error });
+        response = problem("internalError");
+      }
     }
+    const headers = new Headers(response.headers);
+    headers.set("X-Request-Id", requestId);
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
   };
 }
 ```
 
-> Replace `https://errors.example.com` with a docs URL under `siteConfig.url` when the API is public.
+> `about:blank` avoids a fake error-docs domain. Public APIs may use real documented problem-type URLs. Test the wrapper's status/content-type/request-ID behavior with the actual installed runtime.
 
 ## Example
 
@@ -90,6 +100,8 @@ export function withApiHandler<TContext>(
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { siteConfig } from "@/config/site";
+import { PROJECTS_PAGE_SIZE } from "@/features/projects/constants";
 import { createProjectSchema } from "@/features/projects/schemas";
 import { createProject } from "@/features/projects/server/mutations";
 import { listProjects } from "@/features/projects/server/queries";
@@ -97,25 +109,31 @@ import { getCurrentUser } from "@/server/auth/session";
 import { problem, withApiHandler } from "@/server/api";
 
 const listQuerySchema = z.object({
-  cursor: z.string().optional(),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
+  page: z.coerce.number().int().min(1).max(10000).default(1),
+  sortBy: z.enum(["createdAt", "name"]).default("createdAt"),
 });
 
 export const GET = withApiHandler("projects.list", async (request) => {
-  // Check auth here first: data-layer requireUser() redirects, which is right for pages but not for APIs.
+  // Boundary check for safe HTTP errors; listProjects independently requires an actor.
   if (!(await getCurrentUser())) return problem("unauthenticated");
   const query = listQuerySchema.safeParse(Object.fromEntries(new URL(request.url).searchParams));
   if (!query.success) return problem("validationFailed", { errors: z.flattenError(query.error).fieldErrors });
-  const page = await listProjects(query.data); // auth-aware
-  return NextResponse.json(page);
+  const data = await listProjects(query.data); // matches { page, sortBy }
+  const nextPage = data.length === PROJECTS_PAGE_SIZE && query.data.page < 10000 ? query.data.page + 1 : null;
+  return NextResponse.json({ data, page: query.data.page, nextPage });
 });
 
 export const POST = withApiHandler("projects.create", async (request) => {
   const user = await getCurrentUser();
   if (!user) return problem("unauthenticated");
-  const body = createProjectSchema.strict().safeParse(await request.json());
+  // Cookie-authenticated write: do not trust request.url as the configured origin.
+  if (request.headers.get("origin") !== new URL(siteConfig.url).origin) return problem("forbidden");
+  let raw: unknown;
+  try { raw = await request.json(); }
+  catch { return problem("validationFailed", { status: 400 }); }
+  const body = createProjectSchema.strict().safeParse(raw);
   if (!body.success) return problem("validationFailed", { errors: z.flattenError(body.error).fieldErrors });
-  const project = await createProject({ ownerId: user.id, ...body.data });
+  const project = await createProject(body.data); // independently authenticates/authorizes
   return NextResponse.json(project, { status: 201, headers: { Location: `/api/v1/projects/${project.id}` } });
 });
 ```

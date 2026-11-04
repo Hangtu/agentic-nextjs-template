@@ -1,11 +1,11 @@
 # Git, Commits and Pull Requests
 
 > **Read when:** branching, committing, opening or reviewing a PR.
-> **Enforced by:** commitlint (`commit-msg` hook), lefthook pre-commit, CI, branch protection.
+> **Scope:** use the approved project's Git/release policy. Hooks, previews, hosting, and branch protection are selected/configured controls, not automatically installed by adoption. Commits/pushes/PRs require authorization.
 
 ## Branching (trunk-based)
 
-- **GIT-1 (MUST)** `main` is always deployable; every merge to `main` deploys to production.
+- **GIT-1 (MUST)** Keep the default branch usable according to its context: kit checks for this repository; deployability for applications. A merge deploys production only when the approved release pipeline makes that true.
 - **GIT-2 (MUST)** Work on short-lived branches (a few days at most), named `<type>/<short-kebab-description>`, e.g. `feat/project-sharing`, `fix/login-redirect-loop`.
 - **GIT-3 (MUST NOT)** Push directly to `main`, force-push shared branches, or rewrite published history. Undo with `git revert`.
 
@@ -43,7 +43,7 @@
 
 - **GIT-20 (MUST)** Each PR has one concern. Aim for under ~400 changed lines (excluding generated files); split bigger work into stacked PRs or feature-flagged slices.
 - **GIT-21 (MUST)** Fill in the PR template: summary, linked spec or issue, screenshots for UI, how it was tested, the checklist.
-- **GIT-22 (MUST)** CI is green before review. Every PR gets a Vercel preview deployment; test there.
+- **GIT-22 (MUST)** Applicable CI is green before approval; report known baseline failures explicitly. Test app changes on the approved preview environment when available. Kit/docs changes do not require a Vercel deployment.
 - **GIT-23 (MUST)** At least one **human** approval before merging. AI reviews are welcome but don't count as approval.
 - **GIT-24 (MUST)** Squash-merge with a Conventional Commit title, then delete the branch.
 - **GIT-25 (SHOULD)** Open a draft PR early for visibility on large work.
@@ -55,6 +55,6 @@
 
 ## Branch protection (repo settings)
 
-- Require a PR, 1 approval, passing status checks (`ci`), and resolved conversations.
+- Require a PR, approval, resolved conversations, and the actual configured status-check names. This kit uses `Kit checks (Node 22)` / `Kit checks (Node 26)`; consumer apps use their own checks. Renaming workflows requires reviewing branch-protection settings separately.
 - Linear history; no force pushes; no deletions on `main`.
 - Enable secret scanning with push protection, and Dependabot alerts.

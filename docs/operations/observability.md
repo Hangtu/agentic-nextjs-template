@@ -1,6 +1,7 @@
 # Observability (logs, errors, traces, metrics)
 
-> **Read when:** handling errors, adding logging, adding a critical flow, or setting up monitoring.
+> **Read when:** handling errors or adding operational monitoring.
+> **Scope:** add only signals/providers justified by the active contract. A static landing needs no database health check, audit table, Sentry, or Vercel analytics by default. Preserve approved equivalents and obtain privacy/service approval.
 
 ## Stack
 
@@ -52,6 +53,6 @@ export const logger = {
   - `debug`: development only.
 - **OBS-5 (MUST)** Configure the error tracker with the release (git SHA), the environment, PII scrubbing (`sendDefaultPii: false`), and source maps uploaded privately. `captureException` from `@/lib/monitoring` is the only client-side reporting call.
 - **OBS-6 (MUST)** Record security-relevant events (sign-in success/failure bursts, password/email change, role/permission change, account deletion, API key creation) in an `audit_events` table: actor, action, target, timestamp, and no secrets. Write them via `after()`.
-- **OBS-7 (MUST)** `/api/health` returns 200 with a cheap DB check (`select 1`, with a timeout) and no sensitive details.
+- **OBS-7 (MUST)** When a health endpoint is required, report actual service readiness without sensitive details. A DB probe belongs only to a selected persistence dependency; static-only deployments need no artificial DB client.
 - **OBS-8 (SHOULD)** Alert on: error rate spikes, 5xx rate > 1% for 5 minutes, failed cron jobs, health check failures, and a Core Web Vitals regression. Alerts go to a channel someone watches.
 - **OBS-9 (SHOULD)** Add custom spans (OpenTelemetry) around slow or critical operations (external APIs, heavy queries) when debugging performance.

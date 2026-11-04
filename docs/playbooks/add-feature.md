@@ -1,49 +1,53 @@
 # Playbook: Add a Feature
 
-> **Use when:** the user asks to "create/build/add feature X", i.e. a new capability with its own data, UI or rules.
+> **Use when:** adding a capability with its own UI, data, or rules. A visual section can be a feature without a server layer.
 
-## Inputs
+## 1. Establish scope
 
-- What the user wants, who it is for, and why.
-- Product context from [brief.md](../product/brief.md) and terms from [glossary.md](../product/glossary.md).
-- Missing acceptance criteria? Ask (≤ 5 questions, each with a default), or draft them in the spec for approval.
+Read the approved project contract, product brief, and relevant existing examples. Determine the acceptance criteria, touched surfaces, and capability changes.
 
-## Steps
+- Small/static change: a short plan in conversation is enough.
+- Multi-part feature or risky data/security/integration change: use [the spec template](../templates/feature-spec.md), omit irrelevant sections, and wait for approval unless already authorized.
+- Inactive/unknown capability needed? Propose activation and its dependencies/risks first. Do not install the full stack.
 
-1. **Spec.** Create `docs/specs/<feature>.md` from [feature-spec.md](../templates/feature-spec.md). Fill in:
-   - scope (in/out) and acceptance criteria;
-   - the data model and authorization rules ("who can do what");
-   - routes, UI states, i18n namespace, SEO (if public), analytics events, tests.
+Use the contract's actual specs/glossary paths; do not create parallel documents under library example paths.
 
-   Summarize it to the user and **wait for approval** unless they told you to proceed autonomously.
-2. **Glossary.** Add any new domain terms to `docs/product/glossary.md`.
-3. **Data.** If the feature needs tables or columns, follow [change-database-schema.md](change-database-schema.md).
-4. **Feature folder.** Create `src/features/<feature>/` mirroring [reference-feature.md](../architecture/reference-feature.md):
-   1. `constants.ts`, `types.ts` (DTOs), `schemas.ts` (Zod, with i18n error keys).
-   2. `server/cache-tags.ts`, then `server/queries.ts` (auth-aware reads returning DTOs).
-   3. `server/mutations.ts` (authorization in `WHERE`, `AppError` for expected failures).
-   4. `server/actions.ts` (`createAction`, `access` set explicitly, `updateTag`).
-5. **UI.**
-   1. Build Server Components first; add Client Components only for interactivity.
-   2. Reuse `components/ui` and `components/shared`. Need a new primitive? Follow [add-ui-component.md](add-ui-component.md).
-   3. Implement all states: loading skeleton, empty, error, success.
-6. **Routes.** Add pages with [add-page.md](add-page.md): thin route files that compose feature components, with metadata, `<Suspense>` around dynamic parts, and an error boundary.
-7. **i18n.** Add the feature namespace to **every** `messages/<locale>.json`. Use ICU for plurals and variables.
-8. **Navigation.** Add entries to `src/config/navigation.ts` if the feature appears in menus. Add public routes to `src/config/routes.ts` (sitemap/llms.txt).
-9. **Tests.**
-   - unit: schemas, permission and pure functions;
-   - integration: queries and mutations with PGlite, including an "other user can't access" case;
-   - component: interactive client logic;
-   - E2E: the main journey, with an axe scan.
-10. **Analytics.** Emit the events defined in the spec (no personal data).
-11. **Docs.** Set the spec status to `Implemented`; record an ADR if you made a significant decision; update any doc whose convention changed.
+## 2. Choose the smallest appropriate structure
 
-## Verify
+| Need | Create/use |
+|---|---|
+| Static/visual section | Component(s), page composition, UI/accessibility checks |
+| Repeated domain behavior | Feature folder and public interface |
+| External inputs | Zod schema (or preserved validator) and behavior tests |
+| Data reads | Server-only queries with explicit public/private policy |
+| Data writes | Mutations with data-layer authorization; thin action/API boundary |
+| Shared cached reads | Tags/lifetime/invalidation only for actual cache scopes |
+| Interactive form | Native form first; React Hook Form for complex field behavior |
+| Multiple languages | Existing catalogs and localized navigation |
+| External consumers | Reviewed HTTP contract, authentication/signatures, idempotency |
 
-- `pnpm verify` and `pnpm test:e2e` pass.
-- Manual check, or browser tooling: every locale, mobile width, dark mode, keyboard only, and sign-out redirect.
-- Self-review with [code-review.md](code-review.md).
+Do not create empty constants/types/hooks/server/cache-tags files. The full [projects reference](../architecture/reference-feature.md) is for an authenticated DB-backed, localized feature, not a template for every section.
 
-## Done when
+## 3. Implement a vertical slice
 
-The [Definition of Done](../workflow/definition-of-done.md) is satisfied and the report lists the spec, the changes, and the verification evidence.
+Start with one observable path and tests at its public boundary, then extend. Use server-first components and the project's tokens/primitives. Add client boundaries only where interactive. Handle states relevant to the actual data/interaction.
+
+Keep routes thin, but simple static markup does not require a speculative feature service. Extract meaningful composition/responsibility boundaries, not files for file count.
+
+For private data, authenticate and authorize in the data layer; public reads/submissions need an explicit policy, not a fake signed-in user. Keep transport error handling consistent with the approved project's action/API boundaries.
+
+## 4. Apply cross-cutting quality
+
+- **UI:** [accessibility](../quality/accessibility.md), keyboard/focus, labels, contrast, responsive layout.
+- **Indexable pages:** [page playbook](add-page.md) and [SEO](../discoverability/seo.md); private areas get noindex instead.
+- **i18n active:** all selected locales, formatters, and locale navigation. Otherwise normal Next navigation and coherent monolingual copy.
+- **Analytics:** only previously approved events/providers; no personal data.
+- **Persistence/cache/API:** relevant server standards, not unused infrastructure.
+
+## 5. Verify, review, and leave state
+
+Run focused tests, the contract's full checks, build/affected E2E where relevant, and manual UI review. Existing failures remain visible and separate from new regressions.
+
+Review both standards and requirements using [code review](code-review.md). Update the spec/issue status, glossary if terminology changed, and project context if capabilities or conventions changed. Report checks, limitations, deferred work, and the next step.
+
+Complete the applicable [Definition of Done](../workflow/definition-of-done.md). Do not commit/push unless authorized.

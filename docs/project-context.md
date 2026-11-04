@@ -1,0 +1,51 @@
+# Project Context
+
+- **Status:** approved
+- **Mode:** kit
+- **Kit revision:** adaptive-adoption MVP; record a release/commit when distributing
+- **Knowledge root:** docs
+- **Approval:** user approved the adaptive-adoption proposal and requested implementation; this does not authorize a consumer app bootstrap.
+
+## Product and compatibility
+
+This repository contains engineering standards, recipes, and dependency-free kit validation. It has no generated Next.js application. Maintaining it is not evidence that any application scenario has been executed.
+
+## Capabilities
+
+| Capability | State | Decision / evidence |
+|---|---|---|
+| ui | inactive | No application UI in this repository |
+| public-pages | inactive | No deployed application routes |
+| forms | inactive | No application mutations |
+| database | inactive | No application persistence or migrations |
+| auth | inactive | No application identities or sessions |
+| i18n | inactive | Documentation is not a multi-locale app |
+| url-state | inactive | No application URL state |
+| analytics | inactive | No tracking installed |
+| shared-cache | inactive | No application cache |
+| external-api | inactive | No application HTTP endpoints |
+
+## Conventions
+
+- Entry point: `AGENTS.md`; product-facing usage: `README.md`.
+- Library: `docs/`; specs: `docs/specs/`; ADRs: `docs/architecture/decisions/`.
+- Product/glossary templates: `docs/product/`. They describe a future consumer product, not facts about an initialized app.
+- Kit scripts/tests: `scripts/*.mjs`, using built-in Node modules. No root package.json is required.
+- Root CI validates the kit. App workflows/hooks are recipes, not active kit dependencies.
+- Preserve accepted ADR decisions; ADR 0009 scopes their applicability to approved projects.
+
+## Verification
+
+| Check | Command | Baseline / result |
+|---|---|---|
+| Kit checks and regression tests | `node scripts/verify-kit.mjs` | Run after kit changes |
+| Whitespace errors | `git diff --check` | Run before reporting |
+| Generated app checks | Not applicable in kit mode | Execute separately using the scenario checklist |
+
+## Deferred work
+
+See [kit validation](quality/kit-validation.md) for the application scenarios and unexecuted bootstrap/browser evidence. Do not label the kit a tested production starter until those results exist.
+
+## Current work
+
+[Adaptive adoption MVP](specs/adaptive-adoption-mvp.md) is implemented in the working tree, with local kit evidence recorded there. Next: validate actual app/adoption scenarios in isolated target projects. No commit/push has been requested. Do not bootstrap an application into this source kit as a continuation shortcut.

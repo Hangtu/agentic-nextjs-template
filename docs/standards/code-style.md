@@ -1,17 +1,17 @@
 # Code Style
 
 > **Read when:** writing or reviewing any TypeScript/TSX code.
-> **Enforced by:** Prettier (formatting), ESLint (most rules below), knip (unused code), code review.
+> **Scope:** preferred conventions for application TypeScript. Preserve approved existing equivalents; kit CLI scripts use Node/console and their own checks. Formatting/lint/dead-code tools enforce only configured rules, not every statement below.
 
 Formatting is fully automated: **never format by hand and never argue about formatting.** This doc covers what tools can't decide for you.
 
 ## Formatting and imports
 
-- **STYLE-1 (MUST)** Let Prettier format everything (`pnpm format`). Don't change Prettier config without an ADR.
+- **STYLE-1 (MUST)** Use the project's configured formatter and command (`pnpm format` in new apps). Config changes require approval; an ADR is needed only for a consequential convention/tool decision.
 - **STYLE-2 (MUST)** Import with the `@/` alias across top-level folders (`@/components/ui/button`, `@/server/db`). Use relative imports only **within the same feature or folder** (`./project-card`, `../schemas`). Never go up more than one level (`../../`).
 - **STYLE-3 (MUST)** Use `import type { … }` for type-only imports.
 - **STYLE-4 (MUST)** Use named exports. Default exports are allowed only where a framework requires them: Next.js special files (`page.tsx`, `layout.tsx`, `route.ts`…) and config files.
-- **STYLE-5 (MUST NOT)** Create barrel files (`index.ts` that re-export). They break tree-shaking, mix server and client code, and cause import cycles.
+- **STYLE-5 (MUST NOT)** Introduce indiscriminate barrels that mix client/server modules or create cycles. A deliberate server-only DB schema aggregate is allowed; keep its runtime boundary and type-only imports explicit.
 - **STYLE-6 (MUST NOT)** Leave side effects at module top level (network calls, timers, mutations), except deliberate singletons such as the DB client or logger.
 
 ## Functions
@@ -51,7 +51,7 @@ Formatting is fully automated: **never format by hand and never argue about form
   ] as const satisfies readonly NavItem[];
   ```
 
-- **STYLE-35 (MUST)** Format dates, numbers, currencies and relative times with the next-intl formatter (`useFormatter` / `getFormatter`), never by hand or with `toLocaleString()` without an explicit locale.
+- **STYLE-35 (MUST)** Use locale/time-zone-aware formatting: next-intl when selected, otherwise the approved native Intl strategy. Never rely on ambient locale for server/client output or format dates/currencies by hand.
 - **STYLE-36 (MUST)** Store and transmit time in UTC (`Date` / ISO-8601). Convert to the user's time zone only when displaying.
 
 ## Classes

@@ -1,67 +1,43 @@
 # Spec: <Feature name>
 
 - **Status:** Draft | Approved | In progress | Implemented
-- **Feature folder:** `src/features/<feature>/`
-- **Owner:** <name> · **Date:** YYYY-MM-DD · **Links:** <issue, designs>
+- **Scope / owner:** <task or feature; link issue/design>
+- **Project contract:** <actual path>
 
-## 1. Summary
-Problem, who has it, and what success looks like (2–4 sentences).
+Use only sections relevant to the change. Small/static tasks can use a short conversational plan with acceptance criteria instead. This template is not a mandate to add a database, API, translations, analytics, or fourteen files.
 
-## 2. User stories
-- As a <role>, I want <capability>, so that <benefit>.
+## Objective and scope
 
-## 3. Scope
-- **In:** …
-- **Out (not now):** …
+Problem, users, success, in/out of scope. Name the affected capability and any requested activation.
 
-## 4. Acceptance criteria
-Write testable statements:
-- **AC1:** Given <state>, when <action>, then <result>.
-- **AC2:** When <trigger>, the system shall <response>.
+## Acceptance criteria
 
-## 5. UX
-- **Routes:** `/[locale]/…` (group: marketing | auth | app)
-- **States:** loading · empty · error · success · no permission
-- **Components:** new / reused
-- **Copy:** i18n namespace `<Feature>`; key list or draft copy
+Testable statements: given <state>, when <action>, then <result>. Include relevant edge/failure/permission cases.
 
-## 6. Data model
-Tables/columns/indexes/constraints; migration type (additive or expand/contract), with a rollout plan for breaking changes.
+## Implementation plan
 
-## 7. Server
-| Function | File | Access rule (who can do what) |
-|---|---|---|
-| `listX()` | `server/queries.ts` | owner only |
-| `createX()` | `server/mutations.ts` | signed-in user |
-| `createXAction` | `server/actions.ts` | authenticated |
+Actual paths and existing patterns to reuse. Choose the smallest responsibilities and vertical slices. Record approved changes to dependencies, configuration, or security policy.
 
-Cache tags and what invalidates them. API endpoints (if any external consumers).
+## UI and accessibility — if UI
 
-## 8. Security & privacy
-Personal data collected (purpose, retention), abuse cases, rate limits, audit events.
+Routes, interaction/content states, reused/new components, keyboard/focus/labels/contrast, responsive behavior. With i18n, list namespaces/locales; otherwise state the copy strategy.
 
-## 9. SEO / discoverability (public pages only)
-Target query and intent, metadata, schema.org type, sitemap entry, internal links.
+## Data and access — if data is involved
 
-## 10. Accessibility
-Special considerations: custom widgets, drag-and-drop alternatives, live announcements.
+Read/write interfaces, explicit public/private policy, authorization, minimal DTOs, schemas/migrations, relevant indexes/limits. Include isolation tests. Cache scope/tags/invalidation only when caching is needed.
 
-## 11. Analytics
-| Event | When | Properties (no PII) |
-|---|---|---|
-| `x_created` | after a successful create | `x_id` |
+## Public discoverability — if indexable content
 
-## 12. Testing plan
-Unit · integration (including "other user can't access") · E2E journey + axe.
+Metadata, canonical, sitemap, appropriate structured data, internal links. Locale alternates only when applicable. Private route indexing policy instead of artificial SEO work.
 
-## 13. Open questions
-- …
+## Integrations and privacy — if applicable
 
-## 14. Tasks
-- [ ] Schema + migration
-- [ ] Queries / mutations / actions + tests
-- [ ] UI + states
-- [ ] Pages + metadata
-- [ ] i18n (all locales)
-- [ ] E2E
-- [ ] Docs updated
+Consumers, contracts, signatures/credentials, idempotency, abuse cases, rate limits, collected data/retention. Analytics events only if approved.
+
+## Verification and rollout
+
+Tests by behavior/boundary, full commands, manual review, baseline failures, rollback/deployment considerations. State what evidence will prove completion.
+
+## Decisions, open questions, and current state
+
+Consequential trade-offs/ADR links, unanswered decisions, blockers, completed/remaining slices, next step. Preserve this state for another agent without duplicating the code.
