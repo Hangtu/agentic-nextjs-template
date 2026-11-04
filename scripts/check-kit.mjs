@@ -12,7 +12,7 @@ const REQUIRED = [
   "docs/architecture/applicability.md", "docs/playbooks/adopt-project.md",
   "docs/playbooks/bootstrap-project.md", "docs/templates/project-context.md",
   "docs/templates/adoption-report.md", "docs/quality/kit-validation.md",
-  "docs/operations/application-ci.md", ".github/workflows/ci.yml",
+  "docs/operations/application-ci.md", "docs/playbooks/update-kit.md", ".github/workflows/ci.yml",
 ];
 
 function outside(root, path) {
@@ -73,6 +73,45 @@ async function markdownFiles(root) {
   return paths.sort();
 }
 
+function isSafeSourceUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && !url.username && !url.password && !url.search && !url.hash;
+  } catch {
+    return false;
+  }
+}
+
+function isAdoptionDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? "")) return false;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+}
+
+function validateProvenance(fields) {
+  const errors = [];
+  const isApproved = fields.get("Status") === "approved";
+  const isKit = fields.get("Mode") === "kit";
+  const source = fields.get("Kit source");
+  const revision = fields.get("Kit revision");
+  const adoptedAt = fields.get("Adopted at");
+  const isExactRevision = /^(?:[a-f\d]{40}|[a-f\d]{64})$/i.test(revision ?? "");
+
+  if (source && (isApproved || source !== "pending") && !isSafeSourceUrl(source)) {
+    errors.push("Kit source must be an HTTPS URL without credentials, query, or fragment");
+  }
+  if (revision && !(isKit && revision === "unreleased") && (isApproved || revision !== "pending") && !isExactRevision) {
+    errors.push("Kit revision must be a full commit ID, not a branch, tag, or guessed revision");
+  }
+  if (isKit) {
+    if (adoptedAt && adoptedAt !== "not-applicable") errors.push("Adopted at must be not-applicable for the source kit");
+  } else if (adoptedAt && (isApproved || adoptedAt !== "pending") && !isAdoptionDate(adoptedAt)) {
+    errors.push("Adopted at must be a real YYYY-MM-DD date for an approved consumer");
+  }
+  if (fields.get("Update policy") && fields.get("Update policy") !== "manual-review") errors.push("Update policy must be manual-review");
+  return errors;
+}
+
 export function validateContext(rawSource) {
   const source = rawSource.replaceAll("\r\n", "\n");
   const errors = [];
@@ -82,9 +121,10 @@ export function validateContext(rawSource) {
     fields.set(match[1], match[2].trim());
   }
 
-  for (const name of ["Status", "Mode", "Kit revision", "Knowledge root", "Approval"]) {
-    if (!fields.has(name)) errors.push(`Missing field: ${name}`);
+  for (const name of ["Status", "Mode", "Kit source", "Kit revision", "Adopted at", "Update policy", "Knowledge root", "Approval"]) {
+    if (!fields.get(name)) errors.push(`Missing field: ${name}`);
   }
+  errors.push(...validateProvenance(fields));
   const status = fields.get("Status");
   const mode = fields.get("Mode");
   if (!["proposed", "approved"].includes(status)) errors.push("Status must be proposed or approved");

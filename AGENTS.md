@@ -6,7 +6,8 @@ Tool-agnostic instructions for agents and humans. Read the project contract firs
 
 - **This repository:** a documentation and validation kit, not a Next.js application.
 - **Active contract:** [docs/project-context.md](docs/project-context.md).
-- **New or existing target app without an approved contract:** follow [adopt-project.md](docs/playbooks/adopt-project.md) in read-only mode, propose a plan, and wait for approval.
+- **Requested operation:** [Doctor](docs/playbooks/adopt-project.md#doctor) reports only; [Adopt](docs/playbooks/adopt-project.md#adopt) applies an explicit approved plan; [Verify](docs/playbooks/adopt-project.md#verify) runs approved checks without repairs. Default to Doctor if unclear; no automatic transitions.
+- **Missing/unapproved target contract:** Doctor and approved Verify are still available without installing the kit. Incorporation requires an approved plan; an approved contract alone is not permission for new writes.
 - **Bootstrap:** only for an explicitly approved new application, never because a manifest is missing.
 - **Existing app:** preserve compatible conventions and merge its instructions; do not replace its stack to match this kit.
 - If the reference library was relocated, use the contract's paths, not the illustrative `docs/` or `src/` paths below.
@@ -23,7 +24,7 @@ Do not invent scripts or install tools globally to satisfy a command. Report blo
 
 ## 3. Quality and safety requirements
 
-1. **Diagnose before adopting.** Inspect facts yourself, label unknowns, ask about decisions, and obtain approval before incorporation.
+1. **Diagnose before adopting.** Inspect facts yourself, separate confirmed findings/hypotheses/preferences, and cite evidence, impact, priority, confidence, and the next action. Preservation/no-change is valid. Obtain explicit approval before incorporation.
 2. **Small, coherent changes.** Reuse the closest safe, compatible example. Create only files with real responsibilities; no speculative layers. ADRs are for consequential trade-offs.
 3. **Server-first.** In App Router, keep interactive client boundaries small. Keep server-only code and secrets off the client.
 4. **Explicit access policy.** Public operations remain public deliberately; private operations authenticate and authorize in the data layer. UI, layouts, and proxy redirects are not security boundaries.
@@ -42,7 +43,8 @@ Applicability and preservation rules: [architecture/applicability.md](docs/archi
 
 | Task | Read |
 |---|---|
-| Adopt this kit / resolve missing context | `docs/playbooks/adopt-project.md`, `docs/architecture/applicability.md` |
+| Doctor / Adopt / Verify / missing context | `docs/playbooks/adopt-project.md`, `docs/architecture/applicability.md` |
+| Update copied standards | `docs/playbooks/update-kit.md`; manual three-way review, no automatic sync |
 | Create an approved new app | `docs/playbooks/bootstrap-project.md` |
 | Feature | `docs/playbooks/add-feature.md`; choose an appropriately scoped reference |
 | Page / public SEO | `docs/playbooks/add-page.md`, `docs/discoverability/seo.md` |

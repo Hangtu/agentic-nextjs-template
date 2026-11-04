@@ -66,6 +66,85 @@ test("rejects missing, duplicate, and misspelled capability states", async () =>
   assert.ok(errors.some((error) => error.includes("Invalid state")));
 });
 
+for (const field of ["Kit source", "Adopted at", "Update policy"]) {
+  test(`approved consumer contracts require ${field}`, async () => {
+    const source = (await fixture("existing"))
+      .split("\n").filter((line) => !line.startsWith(`- **${field}:**`)).join("\n");
+    assert.ok(validateContext(source).some((error) => error.includes(field)));
+  });
+}
+
+test("approved consumers need an exact commit, not a branch/tag/short revision", async () => {
+  for (const revision of ["main", "v1.0.0", "8a3bdc5", "pending"]) {
+    const source = (await fixture("existing")).replace("a".repeat(40), revision);
+    assert.ok(validateContext(source).some((error) => error.includes("Kit revision")), revision);
+  }
+});
+
+test("full Git object IDs and calendar-valid adoption dates are accepted", async () => {
+  const source = (await fixture("existing")).replace("a".repeat(40), "b".repeat(64))
+    .replace("2026-11-03", "2024-02-29");
+  assert.deepEqual(validateContext(source), []);
+});
+
+test("invalid or pending adoption dates cannot approve a consumer", async () => {
+  for (const date of ["2026-02-30", "2026-13-01", "2026-11-31", "2026-11-03T00:00:00Z", "pending", "not-applicable"]) {
+    const source = (await fixture("existing")).replace("2026-11-03", date);
+    assert.ok(validateContext(source).some((error) => error.includes("Adopted at")), date);
+  }
+});
+
+test("provenance URLs are HTTPS, credential-free, and never echoed in errors", async () => {
+  const original = "https://github.com/Hangtu/agentic-nextjs-template";
+  const unsafe = [
+    "http://example.invalid/kit", "https://user:fixture-secret@example.invalid/kit",
+    "https://example.invalid/kit?token=fixture-secret", "file:///tmp/kit",
+    "https://example.invalid/kit#main", "pending",
+  ];
+  for (const url of unsafe) {
+    const source = (await fixture("existing")).replace(original, url);
+    const errors = validateContext(source);
+    assert.ok(errors.some((error) => error.includes("Kit source")));
+    assert.ok(!errors.join("\n").includes("fixture-secret"));
+  }
+});
+
+test("fork source URLs can be recorded without contacting the host", async () => {
+  const source = (await fixture("existing")).replace(
+    "https://github.com/Hangtu/agentic-nextjs-template", "https://example.invalid/team/fork",
+  );
+  assert.deepEqual(validateContext(source), []);
+});
+
+test("automatic synchronization is not a supported update policy", async () => {
+  const source = (await fixture("existing")).replace("manual-review", "auto-sync");
+  assert.ok(validateContext(source).some((error) => error.includes("Update policy")));
+});
+
+test("legacy provenance gaps are reported without guessing or changing the input", async () => {
+  const source = (await fixture("existing")).split("\n")
+    .filter((line) => !/^- \*\*(Kit source|Adopted at|Update policy):/.test(line)).join("\n")
+    .replace("a".repeat(40), "unrecorded");
+  const before = source;
+  const errors = validateContext(source);
+  assert.ok(errors.some((error) => error.includes("Kit source")));
+  assert.ok(errors.some((error) => error.includes("Kit revision")));
+  assert.equal(source, before);
+});
+
+test("Doctor, Adopt, and Verify do not become persistent project modes", async () => {
+  for (const operation of ["doctor", "adopt", "verify"]) {
+    const source = (await fixture("existing")).replace("**Mode:** existing", `**Mode:** ${operation}`);
+    assert.ok(validateContext(source).some((error) => error.includes("Mode")));
+  }
+});
+
+test("the source kit records an explicit not-applicable adoption date", async () => {
+  const source = await readFile(new URL("../docs/project-context.md", import.meta.url), "utf8");
+  assert.ok(source.includes("**Adopted at:** not-applicable"));
+  assert.deepEqual(validateContext(source), []);
+});
+
 test("kit mode cannot accidentally activate application infrastructure", async () => {
   const source = (await fixture("landing")).replace("**Mode:** new", "**Mode:** kit");
   assert.ok(validateContext(source).some((error) => error.includes("kit mode")));

@@ -7,10 +7,11 @@ The task-routed reference library. Start with the approved [project contract](pr
 | Doc | Read when |
 |---|---|
 | [project-context.md](project-context.md) | Every session: mode, approval, capabilities, actual paths and checks |
-| [playbooks/adopt-project.md](playbooks/adopt-project.md) | Diagnose/incorporate/re-adopt without overwrites |
+| [playbooks/adopt-project.md](playbooks/adopt-project.md) | Independent Doctor / Adopt / Verify operations with explicit stop boundaries |
+| [playbooks/update-kit.md](playbooks/update-kit.md) | Manual source/candidate/local comparison preserving overrides |
 | [architecture/applicability.md](architecture/applicability.md) | Resolve universal requirements versus conditional recipes |
-| [templates/adoption-report.md](templates/adoption-report.md) | Present evidence and a plan before target writes |
-| [templates/project-context.md](templates/project-context.md) | Create a target contract after approval |
+| [templates/adoption-report.md](templates/adoption-report.md) | Findings with status/priority/evidence, preservation decisions, and optional approval plan |
+| [templates/project-context.md](templates/project-context.md) | Approved capabilities/paths plus pinned provenance and manual update policy |
 
 ## Product (project-specific; fill these first)
 | Doc | Read when |

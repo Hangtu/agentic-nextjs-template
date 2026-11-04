@@ -8,6 +8,7 @@
 - [ ] Responsibilities and imports follow the approved structure; only necessary files exist.
 - [ ] Consequential decisions have ADRs; routine changes do not require one.
 - [ ] Existing instructions, configuration, and user work are preserved.
+- [ ] The requested operation boundary was respected: Doctor delivered a report without incorporation; Verify ran only approved checks and did not repair source/configuration.
 
 ## Verification
 - [ ] The contract's checks were actually run, with commands/results and blocked prerequisites reported.
@@ -43,4 +44,5 @@
 - [ ] No unnecessary client JS/providers; appropriate images/fonts; no avoidable waterfalls.
 - [ ] Performance changes have comparable before/after evidence; field metrics are not inferred from a local build.
 - [ ] Specs, changed conventions, env-variable names, contract decisions, and next steps are current.
+- [ ] For consumer incorporation/updates: reviewed source URL/commit, actual date, manual-review policy, and local overrides are recorded; unresolved/failed work is not called verified.
 - [ ] The final report states exactly what was verified, what was not, and remaining risks.

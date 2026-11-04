@@ -2,7 +2,10 @@
 
 - **Status:** approved
 - **Mode:** existing
-- **Kit revision:** fictional validation fixture
+- **Kit source:** https://github.com/Hangtu/agentic-nextjs-template
+- **Kit revision:** aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+- **Adopted at:** 2026-11-03
+- **Update policy:** manual-review
 - **Knowledge root:** docs/agent-kit
 - **Approval:** fixture owner approved the listed scope (test data, not real adoption evidence)
 

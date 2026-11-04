@@ -18,7 +18,7 @@
 4. If a required capability is inactive or unknown, propose the contract change before adding infrastructure.
 5. Surface unresolved conflicts. Do not silently override project decisions or downgrade safety requirements.
 
-For this repository, mode `kit` means maintain documentation and checks, not build an app. For target projects, mode `new` or `existing` and status `approved` must be explicit. A package.json can describe tooling or one package in a workspace; its existence alone is not evidence of an initialized app.
+For this repository, mode `kit` means maintain documentation and checks, not build an app. For target projects, mode `new` or `existing` and status `approved` must be explicit. A package.json can describe tooling or one package in a workspace; its existence alone is not evidence of an initialized app. Doctor/Adopt/Verify are operations per request, not additional project modes. Doctor and approved Verify do not require adopting this library.
 
 ## Capability map
 
@@ -55,6 +55,12 @@ For an existing app:
 - Do not lower strictness, delete tests, or blanket-ignore legacy paths to conceal a failing baseline.
 - Record debt and agree a first touched area. Use characterization tests before structural changes.
 - Adopt compatible standards without claiming the untouched codebase is compliant.
+
+## Provenance and changes to standards
+
+Consumer contracts identify the reviewed source repository, exact commit, real incorporation date, and manual-review policy. The source kit uses explicit unreleased/not-applicable values rather than a self-referential commit/date. Pending/legacy provenance must not be silently filled.
+
+Use [manual three-way review](../playbooks/update-kit.md) for changes to the copied library. Preserve local overrides and distinguish changed reference guidance from authorized application migrations.
 
 ## Verification and authority
 

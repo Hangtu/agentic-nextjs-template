@@ -2,7 +2,10 @@
 
 - **Status:** approved
 - **Mode:** kit
-- **Kit revision:** adaptive-adoption MVP; record a release/commit when distributing
+- **Kit source:** https://github.com/Hangtu/agentic-nextjs-template
+- **Kit revision:** unreleased
+- **Adopted at:** not-applicable
+- **Update policy:** manual-review
 - **Knowledge root:** docs
 - **Approval:** user approved the adaptive-adoption proposal and requested implementation; this does not authorize a consumer app bootstrap.
 
@@ -32,6 +35,8 @@ This repository contains engineering standards, recipes, and dependency-free kit
 - Product/glossary templates: `docs/product/`. They describe a future consumer product, not facts about an initialized app.
 - Kit scripts/tests: `scripts/*.mjs`, using built-in Node modules. No root package.json is required.
 - Root CI validates the kit. App workflows/hooks are recipes, not active kit dependencies.
+- This is the source kit, not an adopted consumer. Its provenance fields deliberately have no adoption date/self-referential commit; consumers record real source commit/date after approved incorporation.
+- Doctor/Adopt/Verify select the current operation only. They do not replace project mode or grant extra permissions.
 - Preserve accepted ADR decisions; ADR 0009 scopes their applicability to approved projects.
 
 ## Verification
@@ -48,4 +53,4 @@ See [kit validation](quality/kit-validation.md) for the application scenarios an
 
 ## Current work
 
-[Adaptive adoption MVP](specs/adaptive-adoption-mvp.md) is implemented in the working tree, with local kit evidence recorded there. Next: validate actual app/adoption scenarios in isolated target projects. No commit/push has been requested. Do not bootstrap an application into this source kit as a continuation shortcut.
+The [adoption MVP](specs/adaptive-adoption-mvp.md) is the committed baseline. The approved [report, operation, and update improvements](specs/doctor-operations-and-updates.md) are implemented with local evidence recorded in that spec. Next: validate real app/adoption/update scenarios in isolated target projects, rather than adding more rules. No app bootstrap, commit, or push is authorized as a continuation shortcut.

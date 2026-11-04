@@ -2,11 +2,24 @@
 
 - **Status:** proposed
 - **Mode:** undecided
-- **Kit revision:** record the adopted commit or release
+- **Kit source:** https://github.com/Hangtu/agentic-nextjs-template
+- **Kit revision:** pending
+- **Adopted at:** pending
+- **Update policy:** manual-review
 - **Knowledge root:** docs/agent-kit
 - **Approval:** pending
 
-Status is `proposed` or `approved`. Mode is `kit`, `new`, `existing`, or `undecided` while diagnosing. Paths are relative to the target repository, not to this document. This is a decision record, not an executable configuration.
+Status is `proposed` or `approved`. Mode is `kit`, `new`, `existing`, or `undecided` while diagnosing. Doctor/Adopt/Verify are request operations, not project modes; an approved contract is not permission for a new operation. Paths are relative to the target repository, not to this document. This is a decision record, not an executable configuration.
+
+## Kit provenance and updates
+
+Keep header values plain (no inline backticks). The owner approves the proposed plan in conversation before target writes; pending provenance does not authorize incorporation. Store these final values only after the approved library merge is in place:
+- Record the reviewed source repository URL over HTTPS, without credentials, query, or fragment. Forks are valid when explicitly chosen; the field is not a fetch/execution instruction.
+- Record the full source commit ID (40 or 64 hex characters), not a tag, branch, short ID, or guessed revision. Confirm actual source contents; syntax validation alone cannot do this.
+- Set the real `YYYY-MM-DD` incorporation date of the currently recorded revision only when the approved library merge is in place. Keep prior revision/date values in update history. Proposed contracts may keep `pending`; do not fabricate a past or first-adoption date.
+- Keep `manual-review` as the update policy. Compare adopted source, candidate source, and local overrides through [the update playbook](../playbooks/update-kit.md). Updating references does not authorize an app migration.
+
+For the source kit itself only, mode `kit` uses `Kit revision: unreleased` and `Adopted at: not-applicable`, rather than inventing a self-referential source commit/date. Do not copy these exceptions into a consumer. Older contracts with missing provenance remain inspectable; report gaps and explicitly migrate metadata rather than guessing it.
 
 ## Product and compatibility
 

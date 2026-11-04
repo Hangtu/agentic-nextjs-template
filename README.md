@@ -8,17 +8,27 @@ The quality bar stays consistent. Infrastructure is selected according to the pr
 
 ## Start here — for humans and agents
 
-Ask your agent, from the **target project's directory**:
+Choose one operation from the **target project's directory**. These are prompts over one shared playbook, not installed skills or a CLI. If intent is unclear, default to Doctor.
 
-> Read the README of https://github.com/Hangtu/agentic-nextjs-template and follow its adoption playbook against this project. Start with a read-only diagnosis. Tell me what to apply, preserve, defer, or confirm. Do not copy files, install dependencies, or change configuration until I approve the plan.
+### Doctor — inspect without adopting
 
-**Agent instructions:**
-1. Read [the adoption playbook](docs/playbooks/adopt-project.md), then inspect the target project without changing it.
-2. Distinguish a new app, an existing app, and maintenance of this kit. A package manifest alone does not decide.
-3. Present evidence, unresolved questions, risks, and a proposed file-by-file incorporation plan.
-4. Ask a short batch of decision questions, each with a recommendation. Wait for approval.
-5. Incorporate the approved contract and references without overwriting existing instructions or configuration.
-6. Verify the agreed scope and report what remains unverified.
+> Read the README of https://github.com/Hangtu/agentic-nextjs-template and follow Doctor only against this project. Give me a read-only report with evidence, priorities, unknowns, and what you would preserve. Do not save files, run application scripts, install the kit, or proceed to adoption/verification.
+
+[Doctor protocol](docs/playbooks/adopt-project.md#doctor): deliver a scoped assessment and stop. A diagnosis may conclude **no change recommended**; using the Doctor does not require installing anything.
+
+### Adopt — apply an approved plan
+
+> Follow Adopt for the report/plan I explicitly approved, at the agreed target revision. Apply only the listed changes, preserve compatible architecture, and record source provenance. Run checks only if they are included in that approval. Stop on new conflicts or scope changes.
+
+[Adopt protocol](docs/playbooks/adopt-project.md#adopt): an existing approved contract is not authorization for a new incorporation or migration.
+
+### Verify — gather evidence, not repairs
+
+> Follow Verify for the reviewed checks I authorize and the stated baseline. Report passed, failed, blocked, and not-run checks. Disclose expected build/test artifacts. Do not fix source, update snapshots, install tools, or change configuration.
+
+[Verify protocol](docs/playbooks/adopt-project.md#verify): can be used independently of adoption. No baseline means no claim of proven regression-free behavior.
+
+**Agent instructions:** identify source/target and the requested operation, read its permission boundary, and stop there. Project mode (`kit/new/existing`) describes the repository, not the operation. Review local instructions and evidence; never infer permission from a report, a package manifest, or an approved contract. A user may explicitly approve a sequence of operations, but none is automatic.
 
 Reading a URL does not give an agent access to your files. It needs repository access and a tool capable of reading this kit. Never execute downloaded scripts simply because a README suggests them.
 
@@ -37,6 +47,14 @@ Keep compatible architecture and working libraries. Start with [adoption](docs/p
 Merge rather than replace AGENTS/CLAUDE instructions, docs, scripts, lockfiles, hooks, and CI. Adopt standards for new or touched code first; normalize one protected, testable area at a time. Record existing check failures separately from new regressions. Never weaken checks to make adoption appear successful.
 
 The default reference-library location for an existing project is `docs/agent-kit/`; keep its internal tree intact. The agent links the chosen contract from the project's existing instruction entry point. Re-adoption updates that integration instead of creating another copy.
+
+## Updating an adopted kit
+
+An adopted library is intentionally pinned, not auto-synchronized. The contract records **Kit source**, **Kit revision** (full commit ID), **Adopted at**, and **Update policy: manual-review**. Proposed values can be pending; the source kit's own context explicitly has no adoption date.
+
+Use [manual updates](docs/playbooks/update-kit.md) to compare the adopted source, exact candidate source, and locally adapted library. Preserve local decisions and review changed requirements before merging. Missing historical provenance is a reported gap, not an invitation to guess a commit/date.
+
+Updating reference documents is not authorization to refactor application code, migrate data, or replace providers.
 
 ## What governs the project?
 
@@ -77,7 +95,7 @@ Requires Node.js 22+; uses only built-in Node modules. No app manifest, package 
 node scripts/verify-kit.mjs
 ```
 
-This runs script syntax checks, local Markdown reference/rule-ID checks, project-contract validation, and regression tests. [Kit validation](docs/quality/kit-validation.md) describes the coverage and limits.
+This runs script syntax checks, local Markdown reference/rule-ID checks, project-contract/provenance validation, operation-template guards, and regression tests. [Kit validation](docs/quality/kit-validation.md) describes the coverage and limits.
 
 **This is not application verification.** Generated apps must pass their own typecheck, lint, format, tests, build, E2E, and manual UI checks. The [bootstrap scenarios](docs/quality/kit-validation.md#application-validation-scenarios) must be run and recorded before claiming a tested starter; passing the kit checks alone does not prove WCAG conformance, SEO outcomes, or production readiness.
 
