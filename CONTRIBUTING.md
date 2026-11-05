@@ -15,7 +15,7 @@ Good contributions:
 Please do **not** add:
 
 - generated application code or a full-stack scaffold;
-- third-party skill packs, a CLI framework, or automatic synchronization;
+- unofficial skill packs, a CLI framework, or automatic skill synchronization; official product skills follow the reviewed, approval-gated policy in [agent-skills.md](docs/architecture/agent-skills.md);
 - dependencies without a concrete demonstrated need;
 - invented adoption evidence, ratings, testimonials, or compatibility claims;
 - consumer project names, URLs, secrets, or personal data without permission.

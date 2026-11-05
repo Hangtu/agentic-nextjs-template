@@ -57,6 +57,14 @@ Disposition is independent from finding status/priority. A confirmed issue can b
 
 Include only relevant rows. An inactive capability is not proof that an existing attack surface is absent.
 
+## Official agent skills — optional, when relevant
+
+| Product / skill | First-party source and revision/date | Evidence of active use and task fit | Agent/runtime compatibility | Disposition |
+|---|---|---|---|---|
+| | | | | suggest / not applicable / not checked / confirm |
+
+Only recommend skills whose official publisher/source was verified and whose guidance is relevant to the inspected project/task. Distinguish an unverified source or unavailable catalog from “no official skill exists.” Doctor may suggest; it never copies, installs, or executes a skill. Incorporation belongs in an explicitly approved Adopt plan.
+
 ## Questions
 
 Ask at most five initial decision questions with recommendations. Inspect facts yourself. Ask another focused round only for blockers.

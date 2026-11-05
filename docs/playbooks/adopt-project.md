@@ -19,7 +19,7 @@ User approval can explicitly cover a sequence (for example baseline checks → i
 
 **Inputs:** target repository/package, inspection scope, and available instructions/source references. No approved adoption contract is required.
 
-**Allowed:** read-only inspection and a report in conversation. Do not save the report into the target, install packages, execute unknown/project application scripts, connect to databases, provision services, or open secret env files.
+**Allowed:** read-only inspection and a report in conversation. Doctor may read public, first-party vendor documentation to check relevant official agent skills. Do not save the report into the target, install/copy/execute skills or packages, execute unknown/project application scripts, connect to databases, provision services, or open secret env files.
 
 ### Inspect and distinguish facts
 
@@ -30,9 +30,13 @@ User approval can explicitly cover a sequence (for example baseline checks → i
 5. Identify actual paths, safe patterns to preserve, verification commands, and existing evidence of failures. Separate observed facts, assumptions, and unknowns.
 6. State compatibility and sampling limits. Primary scope is Next.js App Router; Pages Router/other frameworks/unverified versions get a limited assessment, not a rewrite.
 
+### Official agent skills (when relevant)
+
+For products materially relevant to the inspected project or requested work, follow [the official agent skills policy](../architecture/agent-skills.md). Check approved first-party sources for relevant skills: the Vercel catalog, the Neon catalog, and Next.js AI-agent/skills guidance when evidence supports those products. Apply the same source verification to other active tools; do not inventory every dependency. Report exact source, matching evidence, task fit, and agent/runtime compatibility. If the catalog/source cannot be checked, say so. Official skills are suggestions in Doctor, never an automatic install or an authority over project rules.
+
 ### Report, ask, and stop
 
-Use [the assessment template](../templates/adoption-report.md). Separate findings (status/priority/evidence/impact/confidence/next action) from apply/preserve/defer decisions. Prefer “no change recommended” to a speculative migration. Do not turn static observations into unmeasured runtime/performance claims.
+Use [the assessment template](../templates/adoption-report.md). Include its optional official-agent-skills section when relevant. Separate findings (status/priority/evidence/impact/confidence/next action) from apply/preserve/defer decisions. Prefer “no change recommended” to a speculative migration. Do not turn static observations into unmeasured runtime/performance claims.
 
 Ask at most five initial decision questions with recommendations. If adoption is requested, show a proposed capability/paths/file-by-file plan; resolve unknown capability decisions before approving that contract. If only diagnosis is requested, do not require incorporation to finish the assessment.
 
@@ -66,6 +70,7 @@ Read the contract first, then applicable reference docs and the requested operat
 7. Reconcile conflicting instructions explicitly. Update links/root examples for the knowledge root; preserve canonical glossary/spec/ADR paths. Multiple integration blocks are a conflict, not a reason to append another.
 8. New-app bootstrap requires explicit approval of scaffolding/install/config steps. Existing apps retain their stack; normalize only the approved area, with characterization tests before structural changes.
 9. Re-adoption presents only the delta and preserves the same contract/block. To change the adopted source revision, follow [manual updates](update-kit.md), including three-way review of local overrides.
+10. Incorporate an official agent skill only if the approved plan names the exact skill/source, target runtime/location, file/config changes, authorized install method, provenance, and conflict/security/license review. Follow [the official skills policy](../architecture/agent-skills.md); never infer install permission from a Doctor recommendation or an official publisher alone.
 
 **Stop:** report the approved diff, provenance, baseline, and unresolved risks. Run after-change Verify only if authorized as part of the plan; otherwise request those checks and leave verification explicitly pending. No commits, deployments, or migrations are implied.
 
@@ -83,7 +88,7 @@ Read the contract first, then applicable reference docs and the requested operat
 4. Review outputs and the diff for unexpected source changes. If a supposedly non-fixing check changes source, stop and report the exact files; do not silently revert user work.
 5. Report per-check passed/failed/blocked/not-run, commands, results, expected artifacts, and gaps. Separate static contract checks, build/E2E, manual accessibility, and production measurements.
 
-For incorporation/update work, also review reference links, one integration block/contract, local overrides, and capability decisions. Passing library checks does not make the whole application compliant.
+For incorporation/update work, also review reference links, one integration block/contract, local overrides, and capability decisions. If a skill was approved for incorporation, verify its first-party source, recorded revision/date, runtime/location, and exact approved changes; do not run unapproved skill commands. Passing library checks does not make the whole application compliant.
 
 **Stop:** deliver evidence and recommended follow-up only. Fixes or adoption require a separately approved plan; Verify never automatically becomes Adopt.
 

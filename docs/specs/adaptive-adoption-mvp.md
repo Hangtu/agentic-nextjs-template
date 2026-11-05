@@ -21,7 +21,7 @@ Make this Next.js standards kit useful both for a new application and for an exi
 
 ## Out of scope
 
-- A scaffolding CLI, automatic migration engine, profiles framework, or installed third-party skills.
+- A scaffolding CLI, automatic migration engine, profiles framework, or automatic/unofficial skill installation. Official product-skill discovery and approval-gated incorporation were added later as a separately scoped policy in [Official Agent Skill Discovery and Incorporation](official-agent-skills.md).
 - Changing a consumer application's stack, authentication, database, or production infrastructure.
 - Claiming that documentation checks prove a generated app builds, is WCAG-conformant, or is production-ready.
 

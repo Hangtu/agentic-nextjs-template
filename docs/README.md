@@ -13,6 +13,7 @@ The task-routed reference library. Start with the approved [project contract](pr
 | [templates/adoption-report.md](templates/adoption-report.md) | Findings with status/priority/evidence, preservation decisions, and optional approval plan |
 | [templates/project-context.md](templates/project-context.md) | Approved capabilities/paths plus pinned provenance and manual update policy |
 | [specs/repository-presentation.md](specs/repository-presentation.md) | README, artwork, license, and community-file decisions |
+| [specs/official-agent-skills.md](specs/official-agent-skills.md) | Official skill discovery and approved incorporation policy |
 
 ## Product (project-specific; fill these first)
 | Doc | Read when |
@@ -27,6 +28,7 @@ The task-routed reference library. Start with the approved [project contract](pr
 | [architecture/overview.md](architecture/overview.md) | First day; cross-layer changes |
 | [architecture/project-structure.md](architecture/project-structure.md) | Creating any file or folder |
 | [architecture/tech-stack.md](architecture/tech-stack.md) | Choosing libraries/APIs; checking versions and outdated patterns |
+| [architecture/agent-skills.md](architecture/agent-skills.md) | Discovering relevant official vendor skills; approval-gated incorporation |
 | [architecture/reference-landing.md](architecture/reference-landing.md) | Static monolingual public UI without SaaS infrastructure |
 | [architecture/reference-feature.md](architecture/reference-feature.md) | Expanded auth/DB/i18n feature, only for selected capabilities |
 | [architecture/decisions/](architecture/decisions/README.md) | Understanding or changing a technical decision (ADRs) |

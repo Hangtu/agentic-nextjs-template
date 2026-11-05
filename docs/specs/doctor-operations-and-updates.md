@@ -7,7 +7,7 @@
 
 ## Objective and scope
 
-Extend the existing adoption MVP without a CLI, skills installation, automatic synchronization, or new dependencies. Make findings actionable, distinguish the requested operation from project mode, and retain reliable provenance for manually reviewed updates.
+Extend the existing adoption MVP without a CLI, automatic skill installation, automatic synchronization, or new dependencies. Make findings actionable, distinguish the requested operation from project mode, and retain reliable provenance for manually reviewed updates. Official skill discovery and approval-gated incorporation are covered by the later [official agent skills spec](official-agent-skills.md).
 
 ## Acceptance criteria
 
@@ -34,7 +34,7 @@ Extend the existing adoption MVP without a CLI, skills installation, automatic s
 
 ## Implementation evidence
 
-- Added explicit Doctor/Adopt/Verify entry points and stop boundaries in the existing shared playbook; no new persistent project modes or installed skills.
+- Added explicit Doctor/Adopt/Verify entry points and stop boundaries in the existing shared playbook; no new persistent project modes or skills were installed in this implementation slice. Current official-skill discovery/incorporation policy is defined separately in [official-agent-skills.md](official-agent-skills.md).
 - Extended the report with independent decisions and findings, explicit no-change outcomes, priority/status/evidence/impact/confidence/next action, and optional effort.
 - Added manual three-way update guidance and offline provenance validation. Consumer fixtures contain fictional commit/date metadata for syntax testing, not real adoption evidence.
 - Observed failing tests for missing provenance, moving revisions, invalid dates, unsafe source URLs, and missing operation/report/update contracts before implementation.

@@ -6,7 +6,7 @@ Tool-agnostic instructions for agents and humans. Read the project contract firs
 
 - **This repository:** a documentation and validation kit, not a Next.js application.
 - **Active contract:** [docs/project-context.md](docs/project-context.md).
-- **Requested operation:** [Doctor](docs/playbooks/adopt-project.md#doctor) reports only; [Adopt](docs/playbooks/adopt-project.md#adopt) applies an explicit approved plan; [Verify](docs/playbooks/adopt-project.md#verify) runs approved checks without repairs. Default to Doctor if unclear; no automatic transitions.
+- **Requested operation:** [Doctor](docs/playbooks/adopt-project.md#doctor) reports only; [Adopt](docs/playbooks/adopt-project.md#adopt) applies an explicit approved plan; [Verify](docs/playbooks/adopt-project.md#verify) runs approved checks without repairs. Default to Doctor if unclear; no automatic transitions. The kit may recommend or incorporate only relevant [official product agent skills](docs/architecture/agent-skills.md), and incorporation requires explicit approval.
 - **Missing/unapproved target contract:** Doctor and approved Verify are still available without installing the kit. Incorporation requires an approved plan; an approved contract alone is not permission for new writes.
 - **Bootstrap:** only for an explicitly approved new application, never because a manifest is missing.
 - **Existing app:** preserve compatible conventions and merge its instructions; do not replace its stack to match this kit.
@@ -51,7 +51,7 @@ Applicability and preservation rules: [architecture/applicability.md](docs/archi
 
 | Task | Read |
 |---|---|
-| Doctor / Adopt / Verify / missing context | `docs/playbooks/adopt-project.md`, `docs/architecture/applicability.md` |
+| Doctor / Adopt / Verify / missing context | `docs/playbooks/adopt-project.md`, `docs/architecture/applicability.md`, `docs/architecture/agent-skills.md` |
 | Update copied standards | `docs/playbooks/update-kit.md`; manual three-way review, no automatic sync |
 | README, artwork, community files | `README.md`, `CONTRIBUTING.md`, `assets/README.md`, `docs/operations/github-presentation.md` |
 | Create an approved new app | `docs/playbooks/bootstrap-project.md` |

@@ -71,19 +71,22 @@ Run these prompts from the **target project's directory**, with your agent. If i
 ```text
 Read the README of https://github.com/Hangtu/agentic-nextjs-template and follow
 Doctor only against this project. Give me a read-only report with evidence,
-priorities, unknowns, and what you would preserve. Do not save files, run
-application scripts, install the kit, or proceed to adoption/verification.
+priorities, unknowns, and what you would preserve. When relevant, identify
+matching official product skills with first-party sources; suggest them only.
+Do not save files, install/copy/execute skills, run application scripts, install
+the kit, or proceed to adoption/verification.
 ```
 
-[Doctor protocol →](docs/playbooks/adopt-project.md#doctor) · **No installation required.** “No change recommended” is a valid outcome.
+[Doctor protocol →](docs/playbooks/adopt-project.md#doctor) · [Official skills policy →](docs/architecture/agent-skills.md) · **No kit installation required.** “No change recommended” is a valid outcome.
 
 ### 2. Adopt — apply an approved plan
 
 ```text
 Follow Adopt for the report/plan I explicitly approved, at the agreed target
 revision. Apply only the listed changes, preserve compatible architecture, and
-record source provenance. Run checks only if they are included in that
-approval. Stop on new conflicts or scope changes.
+record source provenance. Incorporate a product skill only if it is official,
+compatible, and named in the approved plan. Run checks only if they are included
+in that approval. Stop on new conflicts or scope changes.
 ```
 
 [Adopt protocol →](docs/playbooks/adopt-project.md#adopt) · Existing instructions and working libraries are merged or preserved, not replaced.
