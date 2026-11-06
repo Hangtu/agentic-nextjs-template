@@ -11,7 +11,7 @@
 ## Major upgrades (ask first)
 
 1. **One major at a time.** Never combine two framework majors in one PR.
-2. **Read** the official migration guide and release notes. For Next.js, also read the bundled docs in `node_modules/next/dist/docs/` after upgrading.
+2. **Read** the official migration guide and release notes. For Node.js, consult the [official release schedule](https://nodejs.org/en/about/previous-releases) to distinguish supported LTS from Current/Alpha, then check compatibility with the framework, dependencies, package manager, and host. For Next.js, also read the bundled docs in `node_modules/next/dist/docs/` after upgrading.
 3. **Use the official codemods** when they exist: `pnpm dlx @next/codemod@latest upgrade latest`, or `next upgrade`; React/TS/Tailwind/ESLint upgrade tools.
 4. **Upgrade:** `pnpm add <pkg>@latest` (or the target major), then `pnpm install`.
 5. **Fix** type errors and deprecations properly. Don't suppress them.

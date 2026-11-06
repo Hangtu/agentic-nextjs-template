@@ -35,6 +35,7 @@ These are release acceptance exercises, **not currently automated by kit CI**. R
 | Existing inconsistent App Router app | Read-only report; evidence-backed findings versus hypotheses; explicit preservation; approved boundaries; baseline comparison; one area normalized; instructions/config preserved; re-adoption produces no duplicate block or contract | Not executed |
 | Standalone Doctor / Verify | No installation/contract prerequisite; Doctor stops at report; only approved Verify checks run; no source repairs or implicit transition | Not executed |
 | Official agent-skill discovery | Approved Vercel/Neon/Next.js sources are used for discovery; Cloudflare `security-audit` is offered only for an explicit security-audit request; full audit is blocked without its required OS-enforced sandbox; no false provider matches or Doctor installs | Not executed |
+| Node.js runtime diagnosis | Every Doctor report assesses configured Node versions when relevant, checks the official release schedule, distinguishes supported LTS from Current/Alpha, checks compatibility before recommending an upgrade, and does not change pins or run project commands | Not executed |
 | Manual kit update with local overrides | Known adopted/candidate/local snapshots; conflicting edits reviewed; local decisions preserved; no app migration; provenance/history updated only after approved incorporation | Not executed |
 
 Add an i18n scenario before advertising that combination as runtime-tested. A successful landing does not validate every possible capability combination.

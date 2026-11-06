@@ -73,6 +73,9 @@ Read the README of https://github.com/Hangtu/agentic-nextjs-template and follow
 Doctor only against this project. Give me a read-only report with evidence,
 priorities, unknowns, and what you would preserve. When relevant, identify
 matching official product skills with first-party sources; suggest them only.
+Include a Node.js runtime status check in every report (mark not applicable if
+absent), using the official release schedule and distinguishing LTS from
+Current/Alpha; do not change pins.
 Do not save files, install/copy/execute skills, run application scripts, install
 the kit, or proceed to adoption/verification.
 ```

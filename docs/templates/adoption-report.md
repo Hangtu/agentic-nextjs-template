@@ -11,6 +11,15 @@
 
 This is a scoped assessment, not a health score or an exhaustive audit. Do not manufacture findings to fill the report.
 
+## Node.js runtime — include in every Doctor report
+
+- **Status:** supported | update available | end-of-life | not checked | not applicable
+- **Declared versions/evidence:** paths for local, CI, container, and deployment pins; distinguish configured values from an observed runtime.
+- **Official schedule:** https://nodejs.org/en/about/previous-releases (date checked; support phase and latest patch for the target line; latest supported LTS line; distinguish Current/Alpha).
+- **Compatibility and recommendation:** installed framework/dependency/host constraints; explain whether this is a required security/support update or an optional upgrade. Never recommend “latest” without its release phase and compatibility evidence.
+
+Do not run project commands or change version pins during Doctor. If the target does not use Node.js, state why this section is not applicable; if version evidence or the official schedule is unavailable, say not checked.
+
 ## Findings
 
 Use one card per material finding. Decisions about adoption belong in the separate table below.

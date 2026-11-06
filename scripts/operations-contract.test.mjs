@@ -14,6 +14,10 @@ test("README exposes three independent operation entry points", async () => {
   const readme = await read("README.md");
   for (const operation of ["doctor", "adopt", "verify"]) {
     assert.ok(readme.includes(`docs/playbooks/adopt-project.md#${operation}`), operation);
+    if (operation === "doctor") {
+      assert.ok(readme.includes("Node.js runtime status check"));
+      assert.ok(readme.includes("official release schedule"));
+    }
   }
 });
 
@@ -33,6 +37,30 @@ for (const operation of ["Doctor", "Adopt", "Verify"]) {
     }
   });
 }
+
+test("Doctor assesses Node.js lifecycle and compatibility without upgrading the target", async () => {
+  const playbook = await read("docs/playbooks/adopt-project.md");
+  const doctor = operationSection(playbook, "Doctor");
+  assert.ok(doctor);
+  assert.ok(doctor.includes("Node.js runtime (include in every Doctor report)"));
+  assert.ok(doctor.includes("https://nodejs.org/en/about/previous-releases"));
+  assert.ok(doctor.includes("Current, Alpha"));
+  assert.ok(doctor.includes("never changes runtime pins"));
+  assert.ok(doctor.includes("If Node.js is irrelevant, explicitly mark this check not applicable"));
+
+  const techStack = await read("docs/architecture/tech-stack.md");
+  assert.ok(techStack.includes("https://nodejs.org/en/about/previous-releases"));
+  assert.ok(techStack.includes("compatible supported LTS line"));
+  assert.ok(!techStack.includes("Node.js 26"), "Do not freeze dynamic release guidance to one major");
+
+  const report = await read("docs/templates/adoption-report.md");
+  const node = operationSection(report, "Node.js runtime — include in every Doctor report");
+  assert.ok(node);
+  for (const label of ["Declared versions/evidence", "Official schedule", "Compatibility and recommendation"]) {
+    assert.ok(node.includes(`**${label}:**`), label);
+  }
+  assert.ok(node.includes("Never recommend “latest” without its release phase and compatibility evidence"));
+});
 
 test("the report distinguishes decisions from evidence-backed findings", async () => {
   const report = await read("docs/templates/adoption-report.md");

@@ -25,10 +25,14 @@ User approval can explicitly cover a sequence (for example baseline checks → i
 
 1. Identify source and target, working-tree state, and user intent. Read target AGENTS/CLAUDE/workspace instructions first.
 2. Distinguish kit maintenance, a new application, and an existing application from intent and actual source, not package.json presence alone.
-3. Read manifests/lockfile metadata, runtime/config files, routes, representative UI/data/mutation code, tests, docs, and CI. Use `.env.example` for names only.
+3. Read manifests/lockfile metadata, runtime/config files, routes, representative UI/data/mutation code, tests, docs, and CI. For Node.js, inspect version declarations such as `.nvmrc`, `.node-version`, `.tool-versions`, `package.json#engines`, CI setup, containers, and deployment config. Use `.env.example` for names only.
 4. Inspect public indexing, private-data authorization, persistence, forms, languages, URL state, cache scope, external consumers, and privacy. Trace relevant call chains; a missing route-level auth check alone is not a defect.
 5. Identify actual paths, safe patterns to preserve, verification commands, and existing evidence of failures. Separate observed facts, assumptions, and unknowns.
 6. State compatibility and sampling limits. Primary scope is Next.js App Router; Pages Router/other frameworks/unverified versions get a limited assessment, not a rewrite.
+
+### Node.js runtime (include in every Doctor report)
+
+When the target uses or requires Node.js, compare declared versions across local development, CI, containers, and deployment with the official [Node.js release schedule](https://nodejs.org/en/about/previous-releases). Report the inspection date, the target's declared line and its support phase, the latest patch for that line, and the latest supported LTS line. Distinguish LTS from Current, Alpha, or other prereleases; “newest available” is not automatically the right production recommendation. Check compatibility with the installed framework/dependencies, package manager, and deployment host before recommending a line upgrade. If Node.js is irrelevant, explicitly mark this check not applicable; if the official schedule or target versions cannot be checked, mark it not checked rather than guessing. Doctor reports only and never changes runtime pins or runs project commands to check a version.
 
 ### Official agent skills (when relevant)
 

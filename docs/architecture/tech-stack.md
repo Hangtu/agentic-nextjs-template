@@ -12,6 +12,7 @@ This kit has **not yet recorded a complete generated-app bootstrap**. Its recipe
 3. Record exact runtime, package manager, generator, and package versions in the project contract. Use an explicit packageManager field and a generated lockfile.
 4. A latest-release experiment is separate from the reproducible baseline; upgrade only through a reviewed compatibility change.
 5. For existing apps, inspect the actual workspace/package, lockfile, and source. Unsupported routes/versions receive a limited-adoption assessment, not an automatic rewrite.
+6. Node.js support status changes over time. In Doctor, compare the target's runtime declarations with the official release schedule; for production, prefer a compatible supported LTS line rather than automatically choosing the newest Current or prerelease line.
 
 See [dependencies](../operations/dependencies.md) and [application validation](../quality/kit-validation.md).
 
@@ -65,6 +66,7 @@ These preferences do not authorize editing legacy code outside scope. Version-sp
 
 | Library | Source |
 |---|---|
+| Node.js | https://nodejs.org/en/about/previous-releases |
 | Next.js | Installed bundled docs when available; https://nextjs.org/docs |
 | React | https://react.dev/reference |
 | Tailwind / shadcn / Base UI | https://tailwindcss.com/docs · https://ui.shadcn.com/docs · https://base-ui.com/react/overview |
