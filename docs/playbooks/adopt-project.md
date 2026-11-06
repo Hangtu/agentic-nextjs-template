@@ -32,7 +32,7 @@ User approval can explicitly cover a sequence (for example baseline checks → i
 
 ### Official agent skills (when relevant)
 
-For products materially relevant to the inspected project or requested work, follow [the official agent skills policy](../architecture/agent-skills.md). Check approved first-party sources for relevant skills: the Vercel catalog, the Neon catalog, and Next.js AI-agent/skills guidance when evidence supports those products. Apply the same source verification to other active tools; do not inventory every dependency. Report exact source, matching evidence, task fit, and agent/runtime compatibility. If the catalog/source cannot be checked, say so. Official skills are suggestions in Doctor, never an automatic install or an authority over project rules.
+For products materially relevant to the inspected project or requested work, follow [the official agent skills policy](../architecture/agent-skills.md). Check approved first-party sources for relevant skills: the Vercel catalog, the Neon catalog, and Next.js AI-agent/skills guidance when evidence supports those products. Mention Cloudflare's reviewed `security-audit` skill only as an option for an explicitly requested security audit/pen test or scoped security review; it is not part of routine Doctor. Any full audit execution must first satisfy its OS-enforced sandbox requirements. Apply the same source verification to other active tools; do not inventory every dependency. Report exact source, matching evidence, task fit, and agent/runtime compatibility. If the catalog/source cannot be checked, say so. Official skills are suggestions in Doctor, never an automatic install or an authority over project rules.
 
 ### Report, ask, and stop
 

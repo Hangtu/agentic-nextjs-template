@@ -15,11 +15,31 @@ test("approved agent-skill sources are first-party Vercel, Neon, and Next.js ref
   assert.ok(policy.includes("https://neon.com/docs/ai/agent-skills"));
   assert.ok(policy.includes("https://nextjs.org/docs/app/guides/ai-agents"));
   assert.ok(policy.includes("https://github.com/vercel/next.js/tree/canary/skills"));
+  assert.ok(policy.includes("https://github.com/cloudflare/security-audit-skill/tree/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit"));
   assert.ok(policy.includes("directly to its source"));
   assert.ok(policy.includes("Next.js alone is not evidence that Vercel is used"));
   assert.ok(policy.includes("PostgreSQL dependency alone is not evidence that Neon is used"));
   assert.ok(policy.includes("not every skill they list"));
   assert.ok(policy.includes("do not invoke, recommend, incorporate, or rely on it"));
+});
+
+test("Cloudflare security-audit is source-reviewed but not runtime-verified and requires a sandbox", async () => {
+  const policy = await read("docs/architecture/agent-skills.md");
+  const review = policy.split("### Cloudflare `security-audit` review record\n")[1]?.split("\n## Doctor report")[0];
+  assert.ok(review);
+  assert.ok(review.includes("Cloudflare GitHub organization"));
+  assert.ok(review.includes("MIT license"));
+  assert.ok(review.includes("OS-enforced sandbox"));
+  assert.ok(review.includes("was not installed or executed"));
+});
+
+test("Doctor offers Cloudflare security-audit only as an explicit, sandboxed security review option", async () => {
+  const playbook = await read("docs/playbooks/adopt-project.md");
+  const doctor = operationSection(playbook, "Doctor");
+  assert.ok(doctor);
+  assert.ok(doctor.includes("explicitly requested security audit/pen test"));
+  assert.ok(doctor.includes("not part of routine Doctor"));
+  assert.ok(doctor.includes("OS-enforced sandbox requirements"));
 });
 
 test("Doctor can recommend official skills but cannot incorporate or execute them", async () => {

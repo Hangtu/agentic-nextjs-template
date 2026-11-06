@@ -26,8 +26,17 @@ Approved first-party sources for skill discovery:
 | Vercel | https://vercel.com/docs/agent-resources/skills | Approved catalog for discovering Vercel-published skills, including React/Next.js and Vercel workflows. Consider only when the project/task matches; Next.js alone is not evidence that Vercel is used. |
 | Neon | https://neon.com/docs/ai/agent-skills | Approved catalog for Neon-published skills. Consider when Neon is actually used or explicitly being evaluated for a current database/backend need. A PostgreSQL dependency alone is not evidence that Neon is used. |
 | Next.js | https://nextjs.org/docs/app/guides/ai-agents and its linked skills source, https://github.com/vercel/next.js/tree/canary/skills | Approved official framework guidance and discovery path for Next.js skills. Match the skill to the installed Next.js version and a concrete workflow; use version-matched bundled docs where available. |
+| Cloudflare security audit | [Reviewed `security-audit` skill at commit `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8`](https://github.com/cloudflare/security-audit-skill/tree/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit) | Consider only for an explicitly requested security audit, pen test, or scoped security review—not routine Doctor. Full audit execution requires every OS-enforced sandbox control specified by the skill; if unavailable, do not execute target-controlled code. |
 
 The user has approved these sources as first-party starting points. This approves their use for discovery and official-source attribution—not every skill they list, installing a skill, or running its commands. Check individual applicability, agent compatibility, content, and permissions before recommending incorporation. These are not a complete registry; other active tools still need the first-party verification above.
+
+### Cloudflare `security-audit` review record
+
+- **Official source:** repository `cloudflare/security-audit-skill` is published under the Cloudflare GitHub organization; the repository declares the MIT license.
+- **Reviewed revision:** `c1c8a8c1471069fb0e188eeaff69b8e8db6564a8` (entry-point `SKILL.md` and `README.md` reviewed at this commit).
+- **Approved use:** candidate for a separate, explicitly requested security audit/pen test or focused security review. Its six-phase full-audit workflow is not part of routine Doctor and can create multiple report/artifact files.
+- **Safety gate:** before any target-controlled build, test, process, browser, emulator, fuzzer, or fixture execution, the skill requires an OS-enforced sandbox with no external network, an allowlisted empty environment, a read-only target, isolated scratch writes, and resource limits. Do not run that workflow if the host cannot enforce those controls; report the blocker and a safe validation plan.
+- **Verification limit:** official provenance and the README/entry-point instructions were reviewed; the skill was not installed or executed, its helper validators/tests were not run, and no real target audit was performed. This is a source/content review, not a runtime or vulnerability-detection guarantee.
 
 ## Doctor report
 
